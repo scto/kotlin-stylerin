@@ -290,7 +290,18 @@ block
     ;
 
 statements
-    : anysemi* (statement (anysemi+ statement?)*)?
+    // Original: anysemi* (statement (anysemi+ statement?)*)?
+    : firstAnysemiOfStatements (statement laterPartOfStatements*)?
+    ;
+
+// This is a rule that we created for easier parsing.
+laterPartOfStatements
+    : anysemi+ statement?
+    ;
+
+// This is a rule that we created for easier parsing.
+firstAnysemiOfStatements
+    : anysemi*
     ;
 
 statement
@@ -506,9 +517,18 @@ conditionalExpression
     ;
 
 ifExpression
-    : IF NL* LPAREN expression RPAREN NL* controlStructureBody? SEMICOLON? (
+    // Original:
+    // IF NL* LPAREN expression RPAREN NL* controlStructureBody? SEMICOLON? (
+    //     NL* ELSE NL* controlStructureBody?
+    // )?
+    : IF NL* LPAREN expression RPAREN NL* firstControlStructureBodyOfIfExpression? SEMICOLON? (
         NL* ELSE NL* controlStructureBody?
     )?
+    ;
+
+// This is a rule that we created for easier parsing.
+firstControlStructureBodyOfIfExpression
+    : controlStructureBody
     ;
 
 controlStructureBody

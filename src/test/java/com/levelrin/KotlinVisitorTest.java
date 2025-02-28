@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatIfStatements() {
+        this.compare("if-before.kt", "if-after.kt");
+    }
+
+    @Test
     void shouldFormatMain() {
         this.compare("main-before.kt", "main-after.kt");
     }

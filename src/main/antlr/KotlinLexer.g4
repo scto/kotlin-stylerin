@@ -16,10 +16,6 @@
 
 lexer grammar KotlinLexer;
 
-@header {
-    package com.levelrin.antlr.generated;
-}
-
 import UnicodeClasses;
 
 ShebangLine: '#!' ~[\u000A\u000D]* -> channel(HIDDEN);
@@ -30,6 +26,9 @@ LineComment: '//' ~[\u000A\u000D]* -> channel(HIDDEN);
 
 WS: [\u0020\u0009\u000C] -> skip;
 
+// It means new line.
+// '\u000A' means `\n`.
+// '\u000D' '\u000A' means `\r\n`.
 NL: '\u000A' | '\u000D' '\u000A';
 
 //SEPARATORS & OPERATIONS

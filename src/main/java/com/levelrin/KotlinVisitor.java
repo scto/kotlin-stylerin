@@ -148,15 +148,53 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
 
     @Override
     public String visitStatements(final KotlinParser.StatementsContext context) {
-        final List<KotlinParser.AnysemiContext> anysemiContexts = context.anysemi();
-        final List<KotlinParser.StatementContext> statementContexts = context.statement();
+        final KotlinParser.FirstAnysemiOfStatementsContext firstAnysemiOfStatementsContext = context.firstAnysemiOfStatements();
+        final KotlinParser.StatementContext statementContext = context.statement();
+        final List<KotlinParser.LaterPartOfStatementsContext> laterPartOfStatementsContexts = context.laterPartOfStatements();
         final StringBuilder text = new StringBuilder();
-        if (!anysemiContexts.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitStatements -> anysemi");
+        text.append(this.visit(firstAnysemiOfStatementsContext));
+        if (statementContext != null) {
+            text.append(this.visit(statementContext));
+            for (final KotlinParser.LaterPartOfStatementsContext laterPartOfStatementsContext : laterPartOfStatementsContexts) {
+                text.append(this.visit(laterPartOfStatementsContext));
+            }
         }
-        if (!statementContexts.isEmpty()) {
-            final KotlinParser.StatementContext firstStatementContext = statementContexts.get(0);
-            text.append(this.visit(firstStatementContext));
+        return text.toString();
+    }
+
+    @Override
+    public String visitLaterPartOfStatements(final KotlinParser.LaterPartOfStatementsContext context) {
+        final List<KotlinParser.AnysemiContext> anysemiContexts = context.anysemi();
+        final KotlinParser.StatementContext statementContext = context.statement();
+        final StringBuilder text = new StringBuilder();
+        for (final KotlinParser.AnysemiContext anysemiContext : anysemiContexts) {
+            text.append(this.visit(anysemiContext));
+        }
+        if (statementContext != null) {
+            text.append(this.visit(statementContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitFirstAnysemiOfStatements(final KotlinParser.FirstAnysemiOfStatementsContext context) {
+        final List<KotlinParser.AnysemiContext> anysemiContexts = context.anysemi();
+        final StringBuilder text = new StringBuilder();
+        for (final KotlinParser.AnysemiContext anysemiContext : anysemiContexts) {
+            text.append(this.visit(anysemiContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitAnysemi(final KotlinParser.AnysemiContext context) {
+        final TerminalNode nlTerminal = context.NL();
+        final TerminalNode semicolonTerminal = context.SEMICOLON();
+        final StringBuilder text = new StringBuilder();
+        if (nlTerminal != null) {
+            // We don't want to add a new line from here.
+        } else if (semicolonTerminal != null) {
+            // We don't want to add a semicolon.
         }
         return text.toString();
     }
@@ -167,9 +205,195 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.BlockLevelExpressionContext blockLevelExpressionContext = context.blockLevelExpression();
         final StringBuilder text = new StringBuilder();
         if (declarationContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitStatement -> declaration");
+            text.append(this.visit(declarationContext));
+            this.appendNewLinesAndIndent(text, 1);
         } else if (blockLevelExpressionContext != null) {
             text.append(this.visit(blockLevelExpressionContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitDeclaration(final KotlinParser.DeclarationContext context) {
+        final List<KotlinParser.LabelDefinitionContext> labelDefinitionContexts = context.labelDefinition();
+        final KotlinParser.ClassDeclarationContext classDeclarationContext = context.classDeclaration();
+        final KotlinParser.FunctionDeclarationContext functionDeclarationContext = context.functionDeclaration();
+        final KotlinParser.PropertyDeclarationContext propertyDeclarationContext = context.propertyDeclaration();
+        final KotlinParser.TypeAliasContext typeAliasContext = context.typeAlias();
+        final StringBuilder text = new StringBuilder();
+        if (!labelDefinitionContexts.isEmpty()) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitDeclaration -> labelDefinition");
+        }
+        if (classDeclarationContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitDeclaration -> classDeclaration");
+        } else if (functionDeclarationContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitDeclaration -> functionDeclaration");
+        } else if (propertyDeclarationContext != null) {
+            text.append(this.visit(propertyDeclarationContext));
+        } else if (typeAliasContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitDeclaration -> typeAlias");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitPropertyDeclaration(final KotlinParser.PropertyDeclarationContext context) {
+        final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
+        final TerminalNode valTerminal = context.VAL();
+        final TerminalNode varTerminal = context.VAR();
+        final List<TerminalNode> nlTerminals = context.NL();
+        final KotlinParser.TypeParametersContext typeParametersContext = context.typeParameters();
+        final KotlinParser.TypeContext typeContext = context.type();
+        // todo: use `dotTerminal` with tests.
+        final TerminalNode dotTerminal = context.DOT();
+        final KotlinParser.MultiVariableDeclarationContext multiVariableDeclarationContext = context.multiVariableDeclaration();
+        final KotlinParser.VariableDeclarationContext variableDeclarationContext = context.variableDeclaration();
+        final KotlinParser.TypeConstraintsContext typeConstraintsContext = context.typeConstraints();
+        // todo: use `byTerminal` and `assignmentTerminal` with tests.
+        final TerminalNode byTerminal = context.BY();
+        final TerminalNode assignmentTerminal = context.ASSIGNMENT();
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final KotlinParser.GetterContext getterContext = context.getter();
+        // todo: use `semiContext` with tests.
+        final KotlinParser.SemiContext semiContext = context.semi();
+        final KotlinParser.SetterContext setterContext = context.setter();
+        final StringBuilder text = new StringBuilder();
+        if (!nlTerminals.isEmpty()) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> nl");
+        }
+        if (modifierListContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> modifierList");
+        }
+        if (valTerminal != null) {
+            text.append(this.visit(valTerminal));
+            text.append(" ");
+        } else if (varTerminal != null) {
+            text.append(this.visit(varTerminal));
+            text.append(" ");
+        }
+        if (typeParametersContext != null) {
+            // (NL* typeParameters)?
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> typeParameters");
+        }
+        if (typeContext != null) {
+            // (NL* type NL* DOT)?
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> type");
+        }
+        // NL* (multiVariableDeclaration | variableDeclaration)
+        if (multiVariableDeclarationContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> multiVariableDeclaration");
+        } else if (variableDeclarationContext != null) {
+            text.append(this.visit(variableDeclarationContext));
+        }
+        if (typeConstraintsContext != null) {
+            // (NL* typeConstraints)?
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> typeConstraints");
+        }
+        if (expressionContext != null) {
+            // (NL* (BY | ASSIGNMENT) NL* expression)?
+            if (byTerminal != null) {
+                throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> by");
+            } else if (assignmentTerminal != null) {
+                text.append(" ")
+                    .append(this.visit(assignmentTerminal))
+                    .append(" ")
+                    .append(this.visit(expressionContext));
+            }
+        }
+        // (NL* getter (semi setter)? | NL* setter (semi getter)?)?
+        if (getterContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> getter");
+        }
+        if (setterContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> setter");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitVariableDeclaration(final KotlinParser.VariableDeclarationContext context) {
+        final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
+        final TerminalNode colonTerminal = context.COLON();
+        final KotlinParser.TypeContext typeContext = context.type();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(simpleIdentifierContext));
+        if (colonTerminal != null) {
+            text.append(this.visit(colonTerminal))
+                .append(" ")
+                .append(this.visit(typeContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitType(final KotlinParser.TypeContext context) {
+        final KotlinParser.TypeModifierListContext typeModifierListContext = context.typeModifierList();
+        final KotlinParser.FunctionTypeContext functionTypeContext = context.functionType();
+        final KotlinParser.ParenthesizedTypeContext parenthesizedTypeContext = context.parenthesizedType();
+        final KotlinParser.NullableTypeContext nullableTypeContext = context.nullableType();
+        final KotlinParser.TypeReferenceContext typeReferenceContext = context.typeReference();
+        final StringBuilder text = new StringBuilder();
+        if (typeModifierListContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitType -> typeModifierList");
+        }
+        if (functionTypeContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitType -> functionType");
+        } else if (parenthesizedTypeContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitType -> parenthesizedType");
+        } else if (nullableTypeContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitType -> nullableType");
+        } else if (typeReferenceContext != null) {
+            text.append(this.visit(typeReferenceContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitTypeReference(final KotlinParser.TypeReferenceContext context) {
+        final TerminalNode lparenTerminal = context.LPAREN();
+        // todo: use `typeReferenceContext` and `rparenTerminal` with tests.
+        final KotlinParser.TypeReferenceContext typeReferenceContext = context.typeReference();
+        final TerminalNode rparenTerminal = context.RPAREN();
+        final KotlinParser.UserTypeContext userTypeContext = context.userType();
+        final TerminalNode dynamicTerminal = context.DYNAMIC();
+        final StringBuilder text = new StringBuilder();
+        if (lparenTerminal != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitTypeReference -> lparen");
+        } else if (userTypeContext != null) {
+            text.append(this.visit(userTypeContext));
+        } else if (dynamicTerminal != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitTypeReference -> dynamic");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitUserType(final KotlinParser.UserTypeContext context) {
+        final List<KotlinParser.SimpleUserTypeContext> simpleUserTypeContexts = context.simpleUserType();
+        // todo: use `nlTerminals` with tests.
+        final List<TerminalNode> nlTerminals = context.NL();
+        final List<TerminalNode> dotTerminals = context.DOT();
+        final StringBuilder text = new StringBuilder();
+        final KotlinParser.SimpleUserTypeContext firstSimpleUserTypeContext = simpleUserTypeContexts.get(0);
+        text.append(this.visit(firstSimpleUserTypeContext));
+        if (!dotTerminals.isEmpty()) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitUserType -> dot");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitSimpleUserType(final KotlinParser.SimpleUserTypeContext context) {
+        final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
+        final List<TerminalNode> nlTerminals = context.NL();
+        final KotlinParser.TypeArgumentsContext typeArgumentsContext = context.typeArguments();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(simpleIdentifierContext));
+        if (!nlTerminals.isEmpty()) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSimpleUserType -> nl");
+        }
+        if (typeArgumentsContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSimpleUserType -> typeArguments");
         }
         return text.toString();
     }
@@ -239,13 +463,39 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     public String visitEqualityComparison(final KotlinParser.EqualityComparisonContext context) {
         final List<KotlinParser.ComparisonContext> comparisonContexts = context.comparison();
         final List<KotlinParser.EqualityOperationContext> equalityOperationContexts = context.equalityOperation();
-        // todo: use `nlTerminals` with tests.
         final List<TerminalNode> nlTerminals = context.NL();
         final StringBuilder text = new StringBuilder();
+        if (!nlTerminals.isEmpty()) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitEqualityComparison -> nl");
+        }
         final KotlinParser.ComparisonContext firstComparisonContext = comparisonContexts.get(0);
         text.append(this.visit(firstComparisonContext));
-        if (!equalityOperationContexts.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitEqualityComparison -> equalityOperation");
+        for (int index = 0; index < equalityOperationContexts.size(); index++) {
+            final KotlinParser.EqualityOperationContext equalityOperationContext = equalityOperationContexts.get(index);
+            final KotlinParser.ComparisonContext comparisonContext = comparisonContexts.get(index + 1);
+            text.append(" ")
+                .append(this.visit(equalityOperationContext))
+                .append(" ")
+                .append(this.visit(comparisonContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitEqualityOperation(final KotlinParser.EqualityOperationContext context) {
+        final TerminalNode exclEqTerminal = context.EXCL_EQ();
+        final TerminalNode exclEqeqTerminal = context.EXCL_EQEQ();
+        final TerminalNode eqeqTerminal = context.EQEQ();
+        final TerminalNode eqeqeqTerminal = context.EQEQEQ();
+        final StringBuilder text = new StringBuilder();
+        if (exclEqTerminal != null) {
+            text.append(this.visit(exclEqTerminal));
+        } else if (exclEqeqTerminal != null) {
+            text.append(this.visit(exclEqeqTerminal));
+        } else if (eqeqTerminal != null) {
+            text.append(this.visit(eqeqTerminal));
+        } else if (eqeqeqTerminal != null) {
+            text.append(this.visit(eqeqeqTerminal));
         }
         return text.toString();
     }
@@ -537,7 +787,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (superExpressionContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> superExpression");
         } else if (conditionalExpressionContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> conditionalExpression");
+            text.append(this.visit(conditionalExpressionContext));
         } else if (tryExpressionContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> tryExpression");
         } else if (objectLiteralContext != null) {
@@ -552,6 +802,78 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(simpleIdentifierContext));
         } else if (valTerminal != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> val");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitConditionalExpression(final KotlinParser.ConditionalExpressionContext context) {
+        final KotlinParser.IfExpressionContext ifExpressionContext = context.ifExpression();
+        final KotlinParser.WhenExpressionContext whenExpressionContext = context.whenExpression();
+        final StringBuilder text = new StringBuilder();
+        if (ifExpressionContext != null) {
+            text.append(this.visit(ifExpressionContext));
+        } else if (whenExpressionContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitConditionalExpression -> whenExpression");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitIfExpression(final KotlinParser.IfExpressionContext context) {
+        final TerminalNode ifTerminal = context.IF();
+        final List<TerminalNode> nlTerminals = context.NL();
+        final TerminalNode lparenTerminal = context.LPAREN();
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final TerminalNode rparenTerminal = context.RPAREN();
+        final KotlinParser.FirstControlStructureBodyOfIfExpressionContext firstControlStructureBodyOfIfExpressionContext = context.firstControlStructureBodyOfIfExpression();
+        final TerminalNode semicolonTerminal = context.SEMICOLON();
+        final TerminalNode elseTerminal = context.ELSE();
+        // todo: use `controlStructureBodyContext` with tests.
+        final KotlinParser.ControlStructureBodyContext controlStructureBodyContext = context.controlStructureBody();
+        final StringBuilder text = new StringBuilder();
+        if (!nlTerminals.isEmpty()) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitIfExpression -> nl");
+        }
+        text.append(this.visit(ifTerminal))
+            .append(" ")
+            .append(this.visit(lparenTerminal))
+            .append(this.visit(expressionContext))
+            .append(this.visit(rparenTerminal));
+        if (firstControlStructureBodyOfIfExpressionContext != null) {
+            text
+                .append(" ")
+                .append(this.visit(firstControlStructureBodyOfIfExpressionContext));
+        }
+        if (semicolonTerminal != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitIfExpression -> semicolon");
+        }
+        if (elseTerminal != null) {
+            text.append(" ")
+                .append(this.visit(elseTerminal))
+                .append(" ")
+                .append(this.visit(controlStructureBodyContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitFirstControlStructureBodyOfIfExpression(final KotlinParser.FirstControlStructureBodyOfIfExpressionContext context) {
+        final KotlinParser.ControlStructureBodyContext controlStructureBodyContext = context.controlStructureBody();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(controlStructureBodyContext));
+        return text.toString();
+    }
+
+    @Override
+    public String visitControlStructureBody(final KotlinParser.ControlStructureBodyContext context) {
+        final KotlinParser.BlockContext blockContext = context.block();
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final StringBuilder text = new StringBuilder();
+        if (blockContext != null) {
+            text.append(this.visit(blockContext));
+        } else if (expressionContext != null) {
+            text.append(this.visit(expressionContext));
         }
         return text.toString();
     }
