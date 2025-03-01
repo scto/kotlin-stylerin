@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatForLoop() {
+        this.compare("for-before.kt", "for-after.kt");
+    }
+
+    @Test
     void shouldFormatIfStatements() {
         this.compare("if-before.kt", "if-after.kt");
     }
