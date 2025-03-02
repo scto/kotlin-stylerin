@@ -29,6 +29,9 @@ WS: [\u0020\u0009\u000C] -> skip;
 // It means new line.
 // '\u000A' means `\n`.
 // '\u000D' '\u000A' means `\r\n`.
+// As far as we know, this is used as an optional new line.
+// For example, we can have multiline conditions in a conditional statement.
+// Since we want to control optional new lines, we don't really have to visit this terminal.
 NL: '\u000A' | '\u000D' '\u000A';
 
 //SEPARATORS & OPERATIONS

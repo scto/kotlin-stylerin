@@ -19,19 +19,11 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
 
     @Override
     public String visitKotlinFile(final KotlinParser.KotlinFileContext context) {
-        final List<TerminalNode> nlTerminals = context.NL();
         final KotlinParser.PreambleContext preamble = context.preamble();
-        final List<KotlinParser.AnysemiContext> anysemiContexts = context.anysemi();
         final List<KotlinParser.TopLevelObjectContext> topLevelObjectContexts = context.topLevelObject();
         final StringBuilder text = new StringBuilder();
-        if (!nlTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitKotlinFile -> nl");
-        }
         if (!preamble.getText().isEmpty()) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitKotlinFile -> preamble");
-        }
-        if (!anysemiContexts.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitKotlinFile -> anysemi");
         }
         if (!topLevelObjectContexts.isEmpty()) {
             final KotlinParser.TopLevelObjectContext firstTopLevelObject = topLevelObjectContexts.get(0);
@@ -67,7 +59,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     public String visitFunctionDeclaration(final KotlinParser.FunctionDeclarationContext context) {
         final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
         final TerminalNode funTerminal = context.FUN();
-        final List<TerminalNode> nlTerminals = context.NL();
         final List<KotlinParser.TypeContext> typeContexts = context.type();
         // todo: use `dotTerminals` with tests.
         final List<TerminalNode> dotTerminals = context.DOT();
@@ -80,9 +71,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.TypeConstraintsContext typeConstraintsContext = context.typeConstraints();
         final KotlinParser.FunctionBodyContext functionBodyContext = context.functionBody();
         final StringBuilder text = new StringBuilder();
-        if (!nlTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionDeclaration -> nl");
-        }
         if (modifierListContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionDeclaration -> modifierList");
         }
@@ -116,9 +104,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitFunctionBody(final KotlinParser.FunctionBodyContext context) {
         final KotlinParser.BlockContext blockContext = context.block();
-        // todo: use `assignmentTerminal`, `nlTerminals`, and `expressionContext` with tests.
+        // todo: use `assignmentTerminal` and `expressionContext` with tests.
         final TerminalNode assignmentTerminal = context.ASSIGNMENT();
-        final List<TerminalNode> nlTerminals = context.NL();
         final KotlinParser.ExpressionContext expressionContext = context.expression();
         final StringBuilder text = new StringBuilder();
         if (blockContext != null) {
@@ -148,53 +135,14 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
 
     @Override
     public String visitStatements(final KotlinParser.StatementsContext context) {
-        final KotlinParser.FirstAnysemiOfStatementsContext firstAnysemiOfStatementsContext = context.firstAnysemiOfStatements();
-        final KotlinParser.StatementContext statementContext = context.statement();
-        final List<KotlinParser.LaterPartOfStatementsContext> laterPartOfStatementsContexts = context.laterPartOfStatements();
+        final List<KotlinParser.StatementContext> statementContexts = context.statement();
         final StringBuilder text = new StringBuilder();
-        text.append(this.visit(firstAnysemiOfStatementsContext));
-        if (statementContext != null) {
+        for (int index = 0; index < statementContexts.size(); index++) {
+            final KotlinParser.StatementContext statementContext = statementContexts.get(index);
             text.append(this.visit(statementContext));
-            for (final KotlinParser.LaterPartOfStatementsContext laterPartOfStatementsContext : laterPartOfStatementsContexts) {
-                text.append(this.visit(laterPartOfStatementsContext));
+            if (index < statementContexts.size() - 1) {
+                this.appendNewLinesAndIndent(text, 1);
             }
-        }
-        return text.toString();
-    }
-
-    @Override
-    public String visitLaterPartOfStatements(final KotlinParser.LaterPartOfStatementsContext context) {
-        final List<KotlinParser.AnysemiContext> anysemiContexts = context.anysemi();
-        final KotlinParser.StatementContext statementContext = context.statement();
-        final StringBuilder text = new StringBuilder();
-        for (final KotlinParser.AnysemiContext anysemiContext : anysemiContexts) {
-            text.append(this.visit(anysemiContext));
-        }
-        if (statementContext != null) {
-            text.append(this.visit(statementContext));
-        }
-        return text.toString();
-    }
-
-    @Override
-    public String visitFirstAnysemiOfStatements(final KotlinParser.FirstAnysemiOfStatementsContext context) {
-        final List<KotlinParser.AnysemiContext> anysemiContexts = context.anysemi();
-        final StringBuilder text = new StringBuilder();
-        for (final KotlinParser.AnysemiContext anysemiContext : anysemiContexts) {
-            text.append(this.visit(anysemiContext));
-        }
-        return text.toString();
-    }
-
-    @Override
-    public String visitAnysemi(final KotlinParser.AnysemiContext context) {
-        final TerminalNode nlTerminal = context.NL();
-        final TerminalNode semicolonTerminal = context.SEMICOLON();
-        final StringBuilder text = new StringBuilder();
-        if (nlTerminal != null) {
-            // We don't want to add a new line from here.
-        } else if (semicolonTerminal != null) {
-            // We don't want to add a semicolon.
         }
         return text.toString();
     }
@@ -206,7 +154,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         if (declarationContext != null) {
             text.append(this.visit(declarationContext));
-            this.appendNewLinesAndIndent(text, 1);
         } else if (blockLevelExpressionContext != null) {
             text.append(this.visit(blockLevelExpressionContext));
         }
@@ -241,7 +188,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
         final TerminalNode valTerminal = context.VAL();
         final TerminalNode varTerminal = context.VAR();
-        final List<TerminalNode> nlTerminals = context.NL();
         final KotlinParser.TypeParametersContext typeParametersContext = context.typeParameters();
         final KotlinParser.TypeContext typeContext = context.type();
         // todo: use `dotTerminal` with tests.
@@ -258,9 +204,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.SemiContext semiContext = context.semi();
         final KotlinParser.SetterContext setterContext = context.setter();
         final StringBuilder text = new StringBuilder();
-        if (!nlTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> nl");
-        }
         if (modifierListContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> modifierList");
         }
@@ -370,8 +313,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitUserType(final KotlinParser.UserTypeContext context) {
         final List<KotlinParser.SimpleUserTypeContext> simpleUserTypeContexts = context.simpleUserType();
-        // todo: use `nlTerminals` with tests.
-        final List<TerminalNode> nlTerminals = context.NL();
         final List<TerminalNode> dotTerminals = context.DOT();
         final StringBuilder text = new StringBuilder();
         final KotlinParser.SimpleUserTypeContext firstSimpleUserTypeContext = simpleUserTypeContexts.get(0);
@@ -385,13 +326,9 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitSimpleUserType(final KotlinParser.SimpleUserTypeContext context) {
         final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
-        final List<TerminalNode> nlTerminals = context.NL();
         final KotlinParser.TypeArgumentsContext typeArgumentsContext = context.typeArguments();
         final StringBuilder text = new StringBuilder();
         text.append(this.visit(simpleIdentifierContext));
-        if (!nlTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSimpleUserType -> nl");
-        }
         if (typeArgumentsContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSimpleUserType -> typeArguments");
         }
@@ -401,14 +338,10 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitBlockLevelExpression(final KotlinParser.BlockLevelExpressionContext context) {
         final List<KotlinParser.AnnotationsContext> annotationsContexts = context.annotations();
-        final List<TerminalNode> nlTerminals = context.NL();
         final KotlinParser.ExpressionContext expressionContext = context.expression();
         final StringBuilder text = new StringBuilder();
         if (!annotationsContexts.isEmpty()) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitBlockLevelExpression -> annotations");
-        }
-        if (!nlTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitBlockLevelExpression -> nl");
         }
         if (expressionContext != null) {
             text.append(this.visit(expressionContext));
@@ -432,8 +365,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitDisjunction(final KotlinParser.DisjunctionContext context) {
         final List<KotlinParser.ConjunctionContext> conjunctionContexts = context.conjunction();
-        // todo: use `nlTerminals` with tests.
-        final List<TerminalNode> nlTerminals = context.NL();
         final List<TerminalNode> disjTerminals = context.DISJ();
         final StringBuilder text = new StringBuilder();
         final KotlinParser.ConjunctionContext firstConjunctionContext = conjunctionContexts.get(0);
@@ -447,8 +378,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitConjunction(final KotlinParser.ConjunctionContext context) {
         final List<KotlinParser.EqualityComparisonContext> equalityComparisonContexts = context.equalityComparison();
-        // todo: use `nlTerminals` with tests.
-        final List<TerminalNode> nlTerminals = context.NL();
         final List<TerminalNode> conjTerminals = context.CONJ();
         final StringBuilder text = new StringBuilder();
         final KotlinParser.EqualityComparisonContext firstEqualityComparisonContext = equalityComparisonContexts.get(0);
@@ -463,11 +392,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     public String visitEqualityComparison(final KotlinParser.EqualityComparisonContext context) {
         final List<KotlinParser.ComparisonContext> comparisonContexts = context.comparison();
         final List<KotlinParser.EqualityOperationContext> equalityOperationContexts = context.equalityOperation();
-        final List<TerminalNode> nlTerminals = context.NL();
         final StringBuilder text = new StringBuilder();
-        if (!nlTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitEqualityComparison -> nl");
-        }
         final KotlinParser.ComparisonContext firstComparisonContext = comparisonContexts.get(0);
         text.append(this.visit(firstComparisonContext));
         for (int index = 0; index < equalityOperationContexts.size(); index++) {
@@ -504,8 +429,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     public String visitComparison(final KotlinParser.ComparisonContext context) {
         final List<KotlinParser.NamedInfixContext> namedInfixContexts = context.namedInfix();
         final KotlinParser.ComparisonOperatorContext comparisonOperatorContext = context.comparisonOperator();
-        // todo: use `nlTerminals` with tests.
-        final List<TerminalNode> nlTerminals = context.NL();
         final StringBuilder text = new StringBuilder();
         final KotlinParser.NamedInfixContext firstNamedInfixContext = namedInfixContexts.get(0);
         text.append(this.visit(firstNamedInfixContext));
@@ -519,8 +442,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     public String visitNamedInfix(final KotlinParser.NamedInfixContext context) {
         final List<KotlinParser.ElvisExpressionContext> elvisExpressionContexts = context.elvisExpression();
         final List<KotlinParser.InOperatorContext> inoperatorContexts = context.inOperator();
-        // todo: use `nlTerminals` and `isOperatorContext` with tests.
-        final List<TerminalNode> nlTerminals = context.NL();
+        // todo: use `isOperatorContext` with tests.
         final KotlinParser.IsOperatorContext isOperatorContext = context.isOperator();
         final KotlinParser.TypeContext typeContext = context.type();
         final StringBuilder text = new StringBuilder();
@@ -538,8 +460,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitElvisExpression(final KotlinParser.ElvisExpressionContext context) {
         final List<KotlinParser.InfixFunctionCallContext> infixFunctionCallContexts = context.infixFunctionCall();
-        // todo: use `nlTerminals` with tests.
-        final List<TerminalNode> nlTerminals = context.NL();
         final List<TerminalNode> elvisTerminals = context.ELVIS();
         final StringBuilder text = new StringBuilder();
         final KotlinParser.InfixFunctionCallContext firstInfixFunctionCallContext = infixFunctionCallContexts.get(0);
@@ -554,8 +474,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     public String visitInfixFunctionCall(final KotlinParser.InfixFunctionCallContext context) {
         final List<KotlinParser.RangeExpressionContext> rangeExpressionContexts = context.rangeExpression();
         final List<KotlinParser.SimpleIdentifierContext> simpleIdentifierContexts = context.simpleIdentifier();
-        // todo: use `nlTerminals` with tests.
-        final List<TerminalNode> nlTerminals = context.NL();
         final StringBuilder text = new StringBuilder();
         final KotlinParser.RangeExpressionContext firstRangeExpressionContext = rangeExpressionContexts.get(0);
         text.append(this.visit(firstRangeExpressionContext));
@@ -569,8 +487,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     public String visitRangeExpression(final KotlinParser.RangeExpressionContext context) {
         final List<KotlinParser.AdditiveExpressionContext> additiveExpressionContexts = context.additiveExpression();
         final List<TerminalNode> rangeTerminals = context.RANGE();
-        // todo: use `nlTerminals` with tests.
-        final List<TerminalNode> nlTerminals = context.NL();
         final StringBuilder text = new StringBuilder();
         final KotlinParser.AdditiveExpressionContext firstAdditiveExpressionContext = additiveExpressionContexts.get(0);
         text.append(this.visit(firstAdditiveExpressionContext));
@@ -587,8 +503,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     public String visitAdditiveExpression(final KotlinParser.AdditiveExpressionContext context) {
         final List<KotlinParser.MultiplicativeExpressionContext> multiplicativeExpressionContexts = context.multiplicativeExpression();
         final List<KotlinParser.AdditiveOperatorContext> additiveOperatorContexts = context.additiveOperator();
-        // todo: use `nlTerminals` with tests.
-        final List<TerminalNode> nlTerminals = context.NL();
         final StringBuilder text = new StringBuilder();
         final KotlinParser.MultiplicativeExpressionContext firstMultiplicativeExpressionContext = multiplicativeExpressionContexts.get(0);
         text.append(this.visit(firstMultiplicativeExpressionContext));
@@ -602,8 +516,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     public String visitMultiplicativeExpression(final KotlinParser.MultiplicativeExpressionContext context) {
         final List<KotlinParser.TypeRHSContext> typeRHSContexts = context.typeRHS();
         final List<KotlinParser.MultiplicativeOperationContext> multiplicativeOperationContexts = context.multiplicativeOperation();
-        // todo: use `nlTerminals` with tests.
-        final List<TerminalNode> nlTerminals = context.NL();
         final StringBuilder text = new StringBuilder();
         final KotlinParser.TypeRHSContext firstTypeRHSContext = typeRHSContexts.get(0);
         text.append(this.visit(firstTypeRHSContext));
@@ -616,8 +528,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitTypeRHS(final KotlinParser.TypeRHSContext context) {
         final List<KotlinParser.PrefixUnaryExpressionContext> prefixUnaryExpressionContexts = context.prefixUnaryExpression();
-        // todo: use `nlTerminals` with tests.
-        final List<TerminalNode> nlTerminals = context.NL();
         final List<KotlinParser.TypeOperationContext> typeOperationContexts = context.typeOperation();
         final StringBuilder text = new StringBuilder();
         final KotlinParser.PrefixUnaryExpressionContext firstPrefixUnaryExpressionContext = prefixUnaryExpressionContexts.get(0);
@@ -667,8 +577,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final List<TerminalNode> exclTerminals = context.EXCL();
         final KotlinParser.CallSuffixContext callSuffixContext = context.callSuffix();
         final KotlinParser.ArrayAccessContext arrayAccessContext = context.arrayAccess();
-        // todo: use `nlTerminals` and `postfixUnaryExpressionContext` with tests.
-        final List<TerminalNode> nlTerminals = context.NL();
         final KotlinParser.MemberAccessOperatorContext memberAccessOperatorContext = context.memberAccessOperator();
         final KotlinParser.PostfixUnaryExpressionContext postfixUnaryExpressionContext = context.postfixUnaryExpression();
         final StringBuilder text = new StringBuilder();
@@ -715,7 +623,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final TerminalNode lparenTerminal = context.LPAREN();
         final List<KotlinParser.ValueArgumentContext> valueArgumentContexts = context.valueArgument();
         final List<TerminalNode> commaTerminals = context.COMMA();
-        final List<TerminalNode> nlTerminals = context.NL();
         final TerminalNode rparenTerminal = context.RPAREN();
         final StringBuilder text = new StringBuilder();
         text.append(this.visit(lparenTerminal));
@@ -742,7 +649,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitValueArgument(final KotlinParser.ValueArgumentContext context) {
         final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
-        final List<TerminalNode> nlTerminals = context.NL();
         // todo: use `assignmentTerminal` with tests.
         final TerminalNode assignmentTerminal = context.ASSIGNMENT();
         final TerminalNode multTerminal = context.MULT();
@@ -753,9 +659,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         }
         if (multTerminal != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitValueArgument -> mult");
-        }
-        if (!nlTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitValueArgument -> nl");
         }
         text.append(this.visit(expressionContext));
         return text.toString();
@@ -828,7 +731,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitForExpression(final KotlinParser.ForExpressionContext context) {
         final TerminalNode forTerminal = context.FOR();
-        final List<TerminalNode> nlTerminals = context.NL();
         final TerminalNode lparenTerminal = context.LPAREN();
         final List<KotlinParser.AnnotationsContext> annotationsContexts = context.annotations();
         final KotlinParser.VariableDeclarationContext variableDeclarationContext = context.variableDeclaration();
@@ -838,9 +740,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final TerminalNode rparenTerminal = context.RPAREN();
         final KotlinParser.ControlStructureBodyContext controlStructureBodyContext = context.controlStructureBody();
         final StringBuilder text = new StringBuilder();
-        if (!nlTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitForExpression -> nl");
-        }
         text.append(this.visit(forTerminal))
             .append(' ')
             .append(this.visit(lparenTerminal));
@@ -878,7 +777,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitIfExpression(final KotlinParser.IfExpressionContext context) {
         final TerminalNode ifTerminal = context.IF();
-        final List<TerminalNode> nlTerminals = context.NL();
         final TerminalNode lparenTerminal = context.LPAREN();
         final KotlinParser.ExpressionContext expressionContext = context.expression();
         final TerminalNode rparenTerminal = context.RPAREN();
@@ -888,9 +786,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         // todo: use `controlStructureBodyContext` with tests.
         final KotlinParser.ControlStructureBodyContext controlStructureBodyContext = context.controlStructureBody();
         final StringBuilder text = new StringBuilder();
-        if (!nlTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitIfExpression -> nl");
-        }
         text.append(this.visit(ifTerminal))
             .append(' ')
             .append(this.visit(lparenTerminal))
@@ -1036,8 +931,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitIdentifier(final KotlinParser.IdentifierContext context) {
         final List<KotlinParser.SimpleIdentifierContext> simpleIdentifierContexts = context.simpleIdentifier();
-        // todo: use `nlTerminals` with tests.
-        final List<TerminalNode> nlTerminals = context.NL();
         final List<TerminalNode> dotTerminals = context.DOT();
         final StringBuilder text = new StringBuilder();
         final KotlinParser.SimpleIdentifierContext firstSimpleIdentifierContext = simpleIdentifierContexts.get(0);

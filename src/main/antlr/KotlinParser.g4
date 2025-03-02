@@ -290,18 +290,7 @@ block
     ;
 
 statements
-    // Original: anysemi* (statement (anysemi+ statement?)*)?
-    : firstAnysemiOfStatements (statement laterPartOfStatements*)?
-    ;
-
-// This is a rule that we created for easier parsing.
-laterPartOfStatements
-    : anysemi+ statement?
-    ;
-
-// This is a rule that we created for easier parsing.
-firstAnysemiOfStatements
-    : anysemi*
+    : anysemi* (statement (anysemi+ statement?)*)?
     ;
 
 statement
@@ -835,6 +824,10 @@ semi
     | NL* SEMICOLON NL*
     ;
 
+// As far as we know, this is used as a terminator.
+// For example, each statement can end with a new line or semicolon.
+// Since we want to control new lines, we don't really have to visit this rule.
+// For instance, we want to always append a new line between statements.
 anysemi
     : NL
     | SEMICOLON
