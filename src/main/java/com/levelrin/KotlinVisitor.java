@@ -433,7 +433,30 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.NamedInfixContext firstNamedInfixContext = namedInfixContexts.get(0);
         text.append(this.visit(firstNamedInfixContext));
         if (comparisonOperatorContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitComparison -> comparisonOperator");
+            text.append(' ')
+                .append(this.visit(comparisonOperatorContext));
+            final KotlinParser.NamedInfixContext secondNamedInfixContext = namedInfixContexts.get(1);
+            text.append(' ')
+                .append(this.visit(secondNamedInfixContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitComparisonOperator(final KotlinParser.ComparisonOperatorContext context) {
+        final TerminalNode langleTerminal = context.LANGLE();
+        final TerminalNode rangleTerminal = context.RANGLE();
+        final TerminalNode leTerminal = context.LE();
+        final TerminalNode geTerminal = context.GE();
+        final StringBuilder text = new StringBuilder();
+        if (langleTerminal != null) {
+            text.append(this.visit(langleTerminal));
+        } else if (rangleTerminal != null) {
+            text.append(this.visit(rangleTerminal));
+        } else if (leTerminal != null) {
+            text.append(this.visit(leTerminal));
+        } else if (geTerminal != null) {
+            text.append(this.visit(geTerminal));
         }
         return text.toString();
     }
@@ -578,10 +601,11 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.CallSuffixContext callSuffixContext = context.callSuffix();
         final KotlinParser.ArrayAccessContext arrayAccessContext = context.arrayAccess();
         final KotlinParser.MemberAccessOperatorContext memberAccessOperatorContext = context.memberAccessOperator();
+        // todo: use `postfixUnaryExpressionContext` with tests.
         final KotlinParser.PostfixUnaryExpressionContext postfixUnaryExpressionContext = context.postfixUnaryExpression();
         final StringBuilder text = new StringBuilder();
         if (incrTerminal != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPostfixUnaryOperation -> incr");
+            text.append(this.visit(incrTerminal));
         } else if (decrTerminal != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPostfixUnaryOperation -> decr");
         } else if (!exclTerminals.isEmpty()) {
@@ -721,10 +745,28 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (forExpressionContext != null) {
             text.append(this.visit(forExpressionContext));
         } else if (whileExpressionContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitLoopExpression -> whileExpression");
+            text.append(this.visit(whileExpressionContext));
         } else if (doWhileExpressionContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitLoopExpression -> doWhileExpression");
         }
+        return text.toString();
+    }
+
+    @Override
+    public String visitWhileExpression(final KotlinParser.WhileExpressionContext context) {
+        final TerminalNode whileTerminal = context.WHILE();
+        final TerminalNode lparenTerminal = context.LPAREN();
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final TerminalNode rparenTerminal = context.RPAREN();
+        final KotlinParser.ControlStructureBodyContext controlStructureBodyContext = context.controlStructureBody();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(whileTerminal))
+            .append(' ')
+            .append(this.visit(lparenTerminal))
+            .append(this.visit(expressionContext))
+            .append(this.visit(rparenTerminal))
+            .append(' ')
+            .append(this.visit(controlStructureBodyContext));
         return text.toString();
     }
 
