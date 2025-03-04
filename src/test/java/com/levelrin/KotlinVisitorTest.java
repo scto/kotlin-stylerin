@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatDoWhileLoop() {
+        this.compare("do-while-before.kt", "do-while-after.kt");
+    }
+
+    @Test
     void shouldFormatWhileLoop() {
         this.compare("while-before.kt", "while-after.kt");
     }

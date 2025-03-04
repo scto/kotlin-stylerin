@@ -747,8 +747,31 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (whileExpressionContext != null) {
             text.append(this.visit(whileExpressionContext));
         } else if (doWhileExpressionContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitLoopExpression -> doWhileExpression");
+            text.append(this.visit(doWhileExpressionContext));
         }
+        return text.toString();
+    }
+
+    @Override
+    public String visitDoWhileExpression(final KotlinParser.DoWhileExpressionContext context) {
+        final TerminalNode doTerminal = context.DO();
+        final KotlinParser.ControlStructureBodyContext controlStructureBodyContext = context.controlStructureBody();
+        final TerminalNode whileTerminal = context.WHILE();
+        final TerminalNode lparenTerminal = context.LPAREN();
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final TerminalNode rparenTerminal = context.RPAREN();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(doTerminal))
+            .append(' ');
+        if (controlStructureBodyContext != null) {
+            text.append(this.visit(controlStructureBodyContext))
+                .append(' ');
+        }
+        text.append(this.visit(whileTerminal))
+            .append(' ')
+            .append(this.visit(lparenTerminal))
+            .append(this.visit(expressionContext))
+            .append(this.visit(rparenTerminal));
         return text.toString();
     }
 
