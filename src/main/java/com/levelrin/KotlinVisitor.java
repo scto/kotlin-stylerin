@@ -834,7 +834,88 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (ifExpressionContext != null) {
             text.append(this.visit(ifExpressionContext));
         } else if (whenExpressionContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitConditionalExpression -> whenExpression");
+            text.append(this.visit(whenExpressionContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitWhenExpression(final KotlinParser.WhenExpressionContext context) {
+        final TerminalNode whenTerminal = context.WHEN();
+        final TerminalNode lparenTerminal = context.LPAREN();
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final TerminalNode rparenTerminal = context.RPAREN();
+        final TerminalNode lcurlTerminal = context.LCURL();
+        final List<KotlinParser.WhenEntryContext> whenEntryContexts = context.whenEntry();
+        final TerminalNode rcurlTerminal = context.RCURL();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(whenTerminal))
+            .append(' ')
+            .append(this.visit(lparenTerminal))
+            .append(this.visit(expressionContext))
+            .append(this.visit(rparenTerminal))
+            .append(' ')
+            .append(this.visit(lcurlTerminal));
+        this.currentIndentLevel++;
+        this.appendNewLinesAndIndent(text, 1);
+        for (int index = 0; index < whenEntryContexts.size(); index++) {
+            final KotlinParser.WhenEntryContext whenEntryContext = whenEntryContexts.get(index);
+            text.append(this.visit(whenEntryContext));
+            if (index == whenEntryContexts.size() - 1) {
+                this.currentIndentLevel--;
+            }
+            this.appendNewLinesAndIndent(text, 1);
+        }
+        text.append(this.visit(rcurlTerminal));
+        return text.toString();
+    }
+
+    @Override
+    public String visitWhenEntry(final KotlinParser.WhenEntryContext context) {
+        final List<KotlinParser.WhenConditionContext> whenConditionContexts = context.whenCondition();
+        final List<TerminalNode> commaTerminals = context.COMMA();
+        final TerminalNode arrowTerminal = context.ARROW();
+        final KotlinParser.ControlStructureBodyContext controlStructureBodyContext = context.controlStructureBody();
+        final TerminalNode elseTerminal = context.ELSE();
+        final StringBuilder text = new StringBuilder();
+        if (elseTerminal == null) {
+            // whenCondition (NL* COMMA NL* whenCondition)* NL* ARROW NL* controlStructureBody semi?
+            final KotlinParser.WhenConditionContext firstWhenConditionContext = whenConditionContexts.get(0);
+            text.append(this.visit(firstWhenConditionContext));
+            for (int index = 0; index < commaTerminals.size(); index++) {
+                final TerminalNode commaTerminal = commaTerminals.get(index);
+                final KotlinParser.WhenConditionContext whenConditionContext = whenConditionContexts.get(index + 1);
+                text.append(this.visit(commaTerminal))
+                    .append(' ')
+                    .append(this.visit(whenConditionContext));
+            }
+            text.append(' ')
+                .append(this.visit(arrowTerminal))
+                .append(' ')
+                .append(this.visit(controlStructureBodyContext));
+        } else {
+            // ELSE NL* ARROW NL* controlStructureBody
+            text.append(this.visit(elseTerminal))
+                .append(' ')
+                .append(this.visit(arrowTerminal))
+                .append(' ')
+                .append(this.visit(controlStructureBodyContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitWhenCondition(final KotlinParser.WhenConditionContext context) {
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final KotlinParser.RangeTestContext rangeTestContext = context.rangeTest();
+        final KotlinParser.TypeTestContext typeTestContext = context.typeTest();
+        final StringBuilder text = new StringBuilder();
+        if (expressionContext != null) {
+            text.append(this.visit(expressionContext));
+        } else if (rangeTestContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitWhenCondition -> rangeTest");
+        } else if (typeTestContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitWhenCondition -> typeTest");
         }
         return text.toString();
     }

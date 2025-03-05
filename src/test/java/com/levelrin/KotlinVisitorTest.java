@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatWhenStatements() {
+        this.compare("when-before.kt", "when-after.kt");
+    }
+
+    @Test
     void shouldFormatDoWhileLoop() {
         this.compare("do-while-before.kt", "do-while-after.kt");
     }
