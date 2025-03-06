@@ -23,13 +23,80 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final List<KotlinParser.TopLevelObjectContext> topLevelObjectContexts = context.topLevelObject();
         final StringBuilder text = new StringBuilder();
         if (!preamble.getText().isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitKotlinFile -> preamble");
+            text.append(this.visit(preamble));
+            this.appendNewLinesAndIndent(text, 2);
         }
         if (!topLevelObjectContexts.isEmpty()) {
             final KotlinParser.TopLevelObjectContext firstTopLevelObject = topLevelObjectContexts.get(0);
             text.append(this.visit(firstTopLevelObject));
         }
         this.appendNewLinesAndIndent(text, 1);
+        return text.toString();
+    }
+
+    @Override
+    public String visitPreamble(final KotlinParser.PreambleContext context) {
+        final KotlinParser.FileAnnotationsContext fileAnnotationsContext = context.fileAnnotations();
+        final KotlinParser.PackageHeaderContext packageHeaderContext = context.packageHeader();
+        final KotlinParser.ImportListContext importListContext = context.importList();
+        final StringBuilder text = new StringBuilder();
+        if (fileAnnotationsContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPreamble -> fileAnnotations");
+        }
+        text.append(this.visit(packageHeaderContext));
+        this.appendNewLinesAndIndent(text, 2);
+        text.append(this.visit(importListContext));
+        return text.toString();
+    }
+
+    @Override
+    public String visitImportList(final KotlinParser.ImportListContext context) {
+        final List<KotlinParser.ImportHeaderContext> importHeaderContexts = context.importHeader();
+        final StringBuilder text = new StringBuilder();
+        for (int index = 0; index < importHeaderContexts.size(); index++) {
+            final KotlinParser.ImportHeaderContext importHeaderContext = importHeaderContexts.get(index);
+            text.append(this.visit(importHeaderContext));
+            if (index < importHeaderContexts.size() - 1) {
+                this.appendNewLinesAndIndent(text, 1);
+            }
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitImportHeader(final KotlinParser.ImportHeaderContext context) {
+        final TerminalNode importTerminal = context.IMPORT();
+        final KotlinParser.IdentifierContext identifierContext = context.identifier();
+        final TerminalNode dotTerminal = context.DOT();
+        final TerminalNode multTerminal = context.MULT();
+        final KotlinParser.ImportAliasContext importAliasContext = context.importAlias();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(importTerminal))
+            .append(' ')
+            .append(this.visit(identifierContext));
+        if (dotTerminal != null) {
+            text.append(this.visit(dotTerminal))
+                .append(this.visit(multTerminal));
+        } else if (importAliasContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitImportHeader -> importAlias");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitPackageHeader(final KotlinParser.PackageHeaderContext context) {
+        final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
+        final TerminalNode packageTerminal = context.PACKAGE();
+        final KotlinParser.IdentifierContext identifierContext = context.identifier();
+        final StringBuilder text = new StringBuilder();
+        if (packageTerminal != null) {
+            if (modifierListContext != null) {
+                throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPackageHeader -> modifierList");
+            }
+            text.append(this.visit(packageTerminal))
+                .append(' ')
+                .append(this.visit(identifierContext));
+        }
         return text.toString();
     }
 
@@ -200,8 +267,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final TerminalNode assignmentTerminal = context.ASSIGNMENT();
         final KotlinParser.ExpressionContext expressionContext = context.expression();
         final KotlinParser.GetterContext getterContext = context.getter();
-        // todo: use `semiContext` with tests.
-        final KotlinParser.SemiContext semiContext = context.semi();
         final KotlinParser.SetterContext setterContext = context.setter();
         final StringBuilder text = new StringBuilder();
         if (modifierListContext != null) {
@@ -1081,8 +1146,11 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         final KotlinParser.SimpleIdentifierContext firstSimpleIdentifierContext = simpleIdentifierContexts.get(0);
         text.append(this.visit(firstSimpleIdentifierContext));
-        if (!dotTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitIdentifier -> dot");
+        for (int index = 0; index < dotTerminals.size(); index++) {
+            final TerminalNode dotTerminal = dotTerminals.get(index);
+            final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = simpleIdentifierContexts.get(index + 1);
+            text.append(this.visit(dotTerminal))
+                .append(this.visit(simpleIdentifierContext));
         }
         return text.toString();
     }

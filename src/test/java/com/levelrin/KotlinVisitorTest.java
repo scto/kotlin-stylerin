@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatImportStatements() {
+        this.compare("import-before.kt", "import-after.kt");
+    }
+
+    @Test
     void shouldFormatWhenStatements() {
         this.compare("when-before.kt", "when-after.kt");
     }

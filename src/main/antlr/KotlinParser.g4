@@ -819,6 +819,7 @@ simpleIdentifier
     | SUSPEND
     ;
 
+// We don't really have to visit this rule due to the same reason as the `anysemi` rule.
 semi
     : NL+
     | NL* SEMICOLON NL*
