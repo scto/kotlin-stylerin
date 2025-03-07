@@ -126,14 +126,14 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     public String visitFunctionDeclaration(final KotlinParser.FunctionDeclarationContext context) {
         final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
         final TerminalNode funTerminal = context.FUN();
-        final List<KotlinParser.TypeContext> typeContexts = context.type();
-        // todo: use `dotTerminals` with tests.
-        final List<TerminalNode> dotTerminals = context.DOT();
+        final KotlinParser.FirstTypeOfFuncDeclarationContext firstTypeOfFuncDeclarationContext = context.firstTypeOfFuncDeclaration();
         final KotlinParser.TypeParametersContext typeParametersContext = context.typeParameters();
         final KotlinParser.ReceiverTypeContext receiverTypeContext = context.receiverType();
+        // todo: use `dotTerminal` with tests.
+        final TerminalNode dotTerminal = context.DOT();
         final KotlinParser.IdentifierContext identifierContext = context.identifier();
         final KotlinParser.FunctionValueParametersContext functionValueParametersContext = context.functionValueParameters();
-        // todo: use `colonTerminal` with tests.
+        final KotlinParser.TypeContext typeContext = context.type();
         final TerminalNode colonTerminal = context.COLON();
         final KotlinParser.TypeConstraintsContext typeConstraintsContext = context.typeConstraints();
         final KotlinParser.FunctionBodyContext functionBodyContext = context.functionBody();
@@ -141,10 +141,10 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (modifierListContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionDeclaration -> modifierList");
         }
-        text.append(this.visit(funTerminal));
-        if (!typeContexts.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionDeclaration -> type");
+        if (firstTypeOfFuncDeclarationContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionDeclaration -> firstTypeOfFuncDeclaration");
         }
+        text.append(this.visit(funTerminal));
         if (typeParametersContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionDeclaration -> typeParameters");
         }
@@ -157,6 +157,11 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         }
         if (functionValueParametersContext != null) {
             text.append(this.visit(functionValueParametersContext));
+        }
+        if (typeContext != null) {
+            text.append(this.visit(colonTerminal))
+                .append(' ')
+                .append(this.visit(typeContext));
         }
         if (typeConstraintsContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionDeclaration -> typeConstraints");
@@ -594,8 +599,26 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         final KotlinParser.MultiplicativeExpressionContext firstMultiplicativeExpressionContext = multiplicativeExpressionContexts.get(0);
         text.append(this.visit(firstMultiplicativeExpressionContext));
-        if (!additiveOperatorContexts.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAdditiveExpression -> additiveOperator");
+        for (int index = 0; index < additiveOperatorContexts.size(); index++) {
+            final KotlinParser.AdditiveOperatorContext additiveOperatorContext = additiveOperatorContexts.get(index);
+            final KotlinParser.MultiplicativeExpressionContext multiplicativeExpressionContext = multiplicativeExpressionContexts.get(index + 1);
+            text.append(' ')
+                .append(this.visit(additiveOperatorContext))
+                .append(' ')
+                .append(this.visit(multiplicativeExpressionContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitAdditiveOperator(final KotlinParser.AdditiveOperatorContext context) {
+        final TerminalNode addTerminal = context.ADD();
+        final TerminalNode subTerminal = context.SUB();
+        final StringBuilder text = new StringBuilder();
+        if (addTerminal != null) {
+            text.append(this.visit(addTerminal));
+        } else if (subTerminal != null) {
+            text.append(this.visit(subTerminal));
         }
         return text.toString();
     }
@@ -788,7 +811,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (objectLiteralContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> objectLiteral");
         } else if (jumpExpressionContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> jumpExpression");
+            text.append(this.visit(jumpExpressionContext));
         } else if (loopExpressionContext != null) {
             text.append(this.visit(loopExpressionContext));
         } else if (collectionLiteralContext != null) {
@@ -797,6 +820,52 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(simpleIdentifierContext));
         } else if (valTerminal != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> val");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitJumpExpression(final KotlinParser.JumpExpressionContext context) {
+        final TerminalNode throwTerminal = context.THROW();
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final TerminalNode returnTerminal = context.RETURN();
+        final TerminalNode returnAtTerminal = context.RETURN_AT();
+        final TerminalNode continueTerminal = context.CONTINUE();
+        final TerminalNode continueAtTerminal = context.CONTINUE_AT();
+        final TerminalNode breakTerminal = context.BREAK();
+        final TerminalNode breakAtTerminal = context.BREAK_AT();
+        final StringBuilder text = new StringBuilder();
+        if (throwTerminal != null) {
+            // THROW NL* expression
+            text.append(this.visit(throwTerminal))
+                .append(' ')
+                .append(this.visit(expressionContext));
+        } else if (returnTerminal != null) {
+            // RETURN expression?
+            text.append(this.visit(returnTerminal));
+            if (expressionContext != null) {
+                text.append(' ')
+                    .append(this.visit(expressionContext));
+            }
+        } else if (returnAtTerminal != null) {
+            // RETURN_AT expression?
+            text.append(this.visit(returnAtTerminal));
+            if (expressionContext != null) {
+                text.append(' ')
+                    .append(this.visit(expressionContext));
+            }
+        } else if (continueTerminal != null) {
+            // CONTINUE
+            text.append(this.visit(continueTerminal));
+        } else if (continueAtTerminal != null) {
+            // CONTINUE_AT
+            text.append(this.visit(continueAtTerminal));
+        } else if (breakTerminal != null) {
+            // BREAK
+            text.append(this.visit(breakTerminal));
+        } else if (breakAtTerminal != null) {
+            // BREAK_AT
+            text.append(this.visit(breakAtTerminal));
         }
         return text.toString();
     }
@@ -1127,15 +1196,57 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     public String visitFunctionValueParameters(final KotlinParser.FunctionValueParametersContext context) {
         final TerminalNode lparenTerminal = context.LPAREN();
         final List<KotlinParser.FunctionValueParameterContext> functionValueParameterContexts = context.functionValueParameter();
-        // todo: use `commaTerminals` with tests.
         final List<TerminalNode> commaTerminals = context.COMMA();
         final TerminalNode rparenTerminal = context.RPAREN();
         final StringBuilder text = new StringBuilder();
         text.append(this.visit(lparenTerminal));
         if (!functionValueParameterContexts.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionValueParameters -> functionValueParameter");
+            final KotlinParser.FunctionValueParameterContext firstFunctionValueParameterContext = functionValueParameterContexts.get(0);
+            text.append(this.visit(firstFunctionValueParameterContext));
+            for (int index = 1; index < functionValueParameterContexts.size(); index++) {
+                final TerminalNode commaTerminal = commaTerminals.get(index - 1);
+                final KotlinParser.FunctionValueParameterContext functionValueParameterContext = functionValueParameterContexts.get(index);
+                text.append(this.visit(commaTerminal))
+                    .append(' ')
+                    .append(this.visit(functionValueParameterContext));
+            }
+            if (functionValueParameterContexts.size() == commaTerminals.size()) {
+                final TerminalNode commaTerminal = commaTerminals.get(commaTerminals.size() - 1);
+                text.append(this.visit(commaTerminal));
+            }
         }
         text.append(this.visit(rparenTerminal));
+        return text.toString();
+    }
+
+    @Override
+    public String visitFunctionValueParameter(final KotlinParser.FunctionValueParameterContext context) {
+        final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
+        final KotlinParser.ParameterContext parameterContext = context.parameter();
+        final TerminalNode assignmentTerminal = context.ASSIGNMENT();
+        // todo: use `expressionContext` with tests.
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final StringBuilder text = new StringBuilder();
+        if (modifierListContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionValueParameter -> modifierList");
+        }
+        text.append(this.visit(parameterContext));
+        if (assignmentTerminal != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionValueParameter -> assignment");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitParameter(final KotlinParser.ParameterContext context) {
+        final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
+        final TerminalNode colonTerminal = context.COLON();
+        final KotlinParser.TypeContext typeContext = context.type();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(simpleIdentifierContext))
+            .append(this.visit(colonTerminal))
+            .append(' ')
+            .append(this.visit(typeContext));
         return text.toString();
     }
 
