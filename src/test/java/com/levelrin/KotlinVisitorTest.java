@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatVariables() {
+        this.compare("variable-before.kt", "variable-after.kt");
+    }
+
+    @Test
     void shouldFormatFunctions() {
         this.compare("function-before.kt", "function-after.kt");
     }
