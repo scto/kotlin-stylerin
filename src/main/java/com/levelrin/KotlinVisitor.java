@@ -26,9 +26,12 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(preamble));
             this.appendNewLinesAndIndent(text, 2);
         }
-        if (!topLevelObjectContexts.isEmpty()) {
-            final KotlinParser.TopLevelObjectContext firstTopLevelObject = topLevelObjectContexts.get(0);
-            text.append(this.visit(firstTopLevelObject));
+        for (int index = 0; index < topLevelObjectContexts.size(); index++) {
+            final KotlinParser.TopLevelObjectContext topLevelObjectContext = topLevelObjectContexts.get(index);
+            text.append(this.visit(topLevelObjectContext));
+            if (index < topLevelObjectContexts.size() - 1) {
+                this.appendNewLinesAndIndent(text, 2);
+            }
         }
         this.appendNewLinesAndIndent(text, 1);
         return text.toString();
@@ -176,7 +179,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitFunctionBody(final KotlinParser.FunctionBodyContext context) {
         final KotlinParser.BlockContext blockContext = context.block();
-        // todo: use `assignmentTerminal` and `expressionContext` with tests.
         final TerminalNode assignmentTerminal = context.ASSIGNMENT();
         final KotlinParser.ExpressionContext expressionContext = context.expression();
         final StringBuilder text = new StringBuilder();
@@ -184,7 +186,9 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(blockContext));
         } else {
             // ASSIGNMENT NL* expression
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionBody -> ASSIGNMENT NL* expression");
+            text.append(this.visit(assignmentTerminal))
+                .append(' ')
+                .append(this.visit(expressionContext));
         }
         return text.toString();
     }
@@ -267,7 +271,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.MultiVariableDeclarationContext multiVariableDeclarationContext = context.multiVariableDeclaration();
         final KotlinParser.VariableDeclarationContext variableDeclarationContext = context.variableDeclaration();
         final KotlinParser.TypeConstraintsContext typeConstraintsContext = context.typeConstraints();
-        // todo: use `byTerminal` and `assignmentTerminal` with tests.
         final TerminalNode byTerminal = context.BY();
         final TerminalNode assignmentTerminal = context.ASSIGNMENT();
         final KotlinParser.ExpressionContext expressionContext = context.expression();
@@ -1063,7 +1066,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.FirstControlStructureBodyOfIfExpressionContext firstControlStructureBodyOfIfExpressionContext = context.firstControlStructureBodyOfIfExpression();
         final TerminalNode semicolonTerminal = context.SEMICOLON();
         final TerminalNode elseTerminal = context.ELSE();
-        // todo: use `controlStructureBodyContext` with tests.
         final KotlinParser.ControlStructureBodyContext controlStructureBodyContext = context.controlStructureBody();
         final StringBuilder text = new StringBuilder();
         text.append(this.visit(ifTerminal))
