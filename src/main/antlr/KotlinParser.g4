@@ -676,7 +676,13 @@ memberAccessOperator
     ;
 
 modifierList
-    : (annotations | modifier)+
+    : annotationsOrModifier+
+    ;
+
+// This is a rule that we created for easier parsing.
+annotationsOrModifier
+    : annotations
+    | modifier
     ;
 
 modifier

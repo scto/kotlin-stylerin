@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatInheritance() {
+        this.compare("inheritance-before.kt", "inheritance-after.kt");
+    }
+
+    @Test
     void shouldFormatClasses() {
         this.compare("class-before.kt", "class-after.kt");
     }
