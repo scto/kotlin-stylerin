@@ -985,7 +985,13 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             }
         } else if (!annotatedLambdaContexts.isEmpty()) {
             // annotatedLambda+
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitCallSuffix -> annotatedLambda+");
+            if (annotatedLambdaContexts.size() == 1) {
+                final KotlinParser.AnnotatedLambdaContext annotatedLambdaContext = annotatedLambdaContexts.get(0);
+                text.append(' ')
+                    .append(this.visit(annotatedLambdaContext));
+            } else if (annotatedLambdaContexts.size() > 1) {
+                throw new UnsupportedOperationException("The following parsing path is not supported yet: visitCallSuffix -> annotatedLambda+");
+            }
         }
         return text.toString();
     }
