@@ -158,7 +158,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassDeclaration -> primaryConstructor");
         }
         if (colonTerminal != null) {
-            text.append(this.visit(colonTerminal))
+            text.append(' ')
+                .append(this.visit(colonTerminal))
                 .append(' ')
                 .append(this.visit(delegationSpecifiersContext));
         }

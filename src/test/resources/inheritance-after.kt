@@ -6,7 +6,7 @@ open class Animal {
 
 }
 
-class Bird: Animal() {
+class Bird : Animal() {
 
     override fun move() {
         println("Bird flying...")
