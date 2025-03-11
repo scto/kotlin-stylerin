@@ -155,7 +155,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassDeclaration -> typeParameters");
         }
         if (primaryConstructorContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassDeclaration -> primaryConstructor");
+            text.append(this.visit(primaryConstructorContext));
         }
         if (colonTerminal != null) {
             text.append(' ')
@@ -171,6 +171,81 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
                 .append(this.visit(classBodyContext));
         } else if (enumClassBodyContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassDeclaration -> enumClassBody");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitPrimaryConstructor(final KotlinParser.PrimaryConstructorContext context) {
+        final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
+        final TerminalNode constructorTerminal = context.CONSTRUCTOR();
+        final KotlinParser.ClassParametersContext classParametersContext = context.classParameters();
+        final StringBuilder text = new StringBuilder();
+        if (modifierListContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPrimaryConstructor -> modifierList");
+        }
+        if (constructorTerminal != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPrimaryConstructor -> constructor");
+        }
+        text.append(this.visit(classParametersContext));
+        return text.toString();
+    }
+
+    @Override
+    public String visitClassParameters(final KotlinParser.ClassParametersContext context) {
+        final TerminalNode lparenTerminal = context.LPAREN();
+        final List<KotlinParser.ClassParameterContext> classParameterContexts = context.classParameter();
+        final List<TerminalNode> commaTerminals = context.COMMA();
+        final TerminalNode rparenTerminal = context.RPAREN();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(lparenTerminal));
+        if (!classParameterContexts.isEmpty()) {
+            final KotlinParser.ClassParameterContext firstClassParameter = classParameterContexts.get(0);
+            text.append(this.visit(firstClassParameter));
+            for (int index = 1; index < classParameterContexts.size(); index++) {
+                final TerminalNode commaTerminal = commaTerminals.get(index - 1);
+                final KotlinParser.ClassParameterContext classParameterContext = classParameterContexts.get(index);
+                text.append(this.visit(commaTerminal))
+                    .append(' ')
+                    .append(this.visit(classParameterContext));
+            }
+            if (classParameterContexts.size() == commaTerminals.size()) {
+                final TerminalNode commaTerminal = commaTerminals.get(commaTerminals.size() - 1);
+                text.append(this.visit(commaTerminal));
+            }
+        }
+        text.append(this.visit(rparenTerminal));
+        return text.toString();
+    }
+
+    @Override
+    public String visitClassParameter(final KotlinParser.ClassParameterContext context) {
+        final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
+        final TerminalNode valTerminal = context.VAL();
+        final TerminalNode varTerminal = context.VAR();
+        final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
+        final TerminalNode colonTerminal = context.COLON();
+        final KotlinParser.TypeContext typeContext = context.type();
+        final TerminalNode assignmentTerminal = context.ASSIGNMENT();
+        // todo: use `expressionContext` with tests.
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final StringBuilder text = new StringBuilder();
+        if (modifierListContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassParameter -> modifierList");
+        }
+        if (valTerminal != null) {
+            text.append(this.visit(valTerminal))
+                .append(' ');
+        } else if (varTerminal != null) {
+            text.append(this.visit(varTerminal))
+                .append(' ');
+        }
+        text.append(this.visit(simpleIdentifierContext))
+            .append(this.visit(colonTerminal))
+            .append(' ')
+            .append(this.visit(typeContext));
+        if (assignmentTerminal != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassParameter -> assignment");
         }
         return text.toString();
     }
@@ -354,9 +429,51 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (anonymousInitializerContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassMemberDeclaration -> anonymousInitializer");
         } else if (secondaryConstructorContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassMemberDeclaration -> secondaryConstructor");
+            text.append(this.visit(secondaryConstructorContext));
         } else if (typeAliasContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassMemberDeclaration -> typeAlias");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitSecondaryConstructor(final KotlinParser.SecondaryConstructorContext context) {
+        final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
+        final TerminalNode constructorTerminal = context.CONSTRUCTOR();
+        final KotlinParser.FunctionValueParametersContext functionValueParametersContext = context.functionValueParameters();
+        final TerminalNode colonTerminal = context.COLON();
+        final KotlinParser.ConstructorDelegationCallContext constructorDelegationCallContext = context.constructorDelegationCall();
+        final KotlinParser.BlockContext blockContext = context.block();
+        final StringBuilder text = new StringBuilder();
+        if (modifierListContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSecondaryConstructor -> modifierList");
+        }
+        text.append(this.visit(constructorTerminal))
+            .append(this.visit(functionValueParametersContext));
+        if (colonTerminal != null) {
+            text.append(' ')
+                .append(this.visit(colonTerminal))
+                .append(' ')
+                .append(this.visit(constructorDelegationCallContext));
+        }
+        if (blockContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSecondaryConstructor -> block");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitConstructorDelegationCall(final KotlinParser.ConstructorDelegationCallContext context) {
+        final TerminalNode thisTerminal = context.THIS();
+        final KotlinParser.ValueArgumentsContext valueArgumentsContext = context.valueArguments();
+        final TerminalNode superTerminal = context.SUPER();
+        final StringBuilder text = new StringBuilder();
+        if (thisTerminal != null) {
+            text.append(this.visit(thisTerminal))
+                .append(this.visit(valueArgumentsContext));
+        } else if (superTerminal != null) {
+            text.append(this.visit(superTerminal))
+                .append(this.visit(valueArgumentsContext));
         }
         return text.toString();
     }

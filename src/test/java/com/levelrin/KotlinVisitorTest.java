@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatConstructor() {
+        this.compare("constructor-before.kt", "constructor-after.kt");
+    }
+
+    @Test
     void shouldFormatInterface() {
         this.compare("interface-before.kt", "interface-after.kt");
     }
