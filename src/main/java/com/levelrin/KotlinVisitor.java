@@ -514,7 +514,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (companionObjectContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassMemberDeclaration -> companionObject");
         } else if (propertyDeclarationContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassMemberDeclaration -> propertyDeclaration");
+            text.append(this.visit(propertyDeclarationContext));
         } else if (anonymousInitializerContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassMemberDeclaration -> anonymousInitializer");
         } else if (secondaryConstructorContext != null) {

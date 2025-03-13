@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatDataClass() {
+        this.compare("data-class-before.kt", "data-class-after.kt");
+    }
+
+    @Test
     void shouldFormatEnum() {
         this.compare("enum-before.kt", "enum-after.kt");
     }
