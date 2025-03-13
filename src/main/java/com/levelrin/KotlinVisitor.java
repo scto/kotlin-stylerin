@@ -170,7 +170,74 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(' ')
                 .append(this.visit(classBodyContext));
         } else if (enumClassBodyContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassDeclaration -> enumClassBody");
+            text.append(' ')
+                .append(this.visit(enumClassBodyContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitEnumClassBody(final KotlinParser.EnumClassBodyContext context) {
+        final TerminalNode lcurlTerminal = context.LCURL();
+        final KotlinParser.EnumEntriesContext enumEntriesContext = context.enumEntries();
+        final TerminalNode semicolonTerminal = context.SEMICOLON();
+        // todo: use `classMemberDeclarationContexts` with tests.
+        final List<KotlinParser.ClassMemberDeclarationContext> classMemberDeclarationContexts = context.classMemberDeclaration();
+        final TerminalNode rcurlTerminal = context.RCURL();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(lcurlTerminal));
+        this.currentIndentLevel++;
+        this.appendNewLinesAndIndent(text, 2);
+        if (enumEntriesContext != null) {
+            text.append(this.visit(enumEntriesContext));
+        }
+        if (semicolonTerminal != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitEnumClassBody -> semicolon");
+        }
+        this.currentIndentLevel--;
+        this.appendNewLinesAndIndent(text, 2);
+        text.append(this.visit(rcurlTerminal));
+        return text.toString();
+    }
+
+    @Override
+    public String visitEnumEntries(final KotlinParser.EnumEntriesContext context) {
+        final List<KotlinParser.EnumEntryContext> enumEntryContexts = context.enumEntry();
+        final TerminalNode semicolonTerminal = context.SEMICOLON();
+        final StringBuilder text = new StringBuilder();
+        for (int index = 0; index < enumEntryContexts.size(); index++) {
+            final KotlinParser.EnumEntryContext enumEntry = enumEntryContexts.get(index);
+            text.append(this.visit(enumEntry));
+            if (index < enumEntryContexts.size() - 1) {
+                this.appendNewLinesAndIndent(text, 1);
+            }
+        }
+        if (semicolonTerminal != null) {
+            throw new UnsupportedOperationException("The following parsing path is not uspported yet: visitEnumEntries -> semicolon");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitEnumEntry(final KotlinParser.EnumEntryContext context) {
+        final List<KotlinParser.AnnotationsContext> annotationsContexts = context.annotations();
+        final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
+        final KotlinParser.ValueArgumentsContext valueArgumentsContext = context.valueArguments();
+        final KotlinParser.ClassBodyContext classBodyContext = context.classBody();
+        final TerminalNode commaTerminal = context.COMMA();
+        final StringBuilder text = new StringBuilder();
+        if (!annotationsContexts.isEmpty()) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitEnumEntry -> annotations");
+        }
+        text.append(this.visit(simpleIdentifierContext));
+        if (valueArgumentsContext != null) {
+            text.append(this.visit(valueArgumentsContext));
+        }
+        if (classBodyContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitEnumEntry -> classBody");
+        }
+        if (commaTerminal != null) {
+            text.append(this.visit(commaTerminal));
         }
         return text.toString();
     }
@@ -333,7 +400,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.TypeParameterModifierContext typeParameterModifierContext = context.typeParameterModifier();
         final StringBuilder text = new StringBuilder();
         if (classModifierContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitModifier -> classModifier");
+            text.append(this.visit(classModifierContext));
         } else if (memberModifierContext != null) {
             text.append(this.visit(memberModifierContext));
         } else if (visibilityModifierContext != null) {
@@ -350,6 +417,28 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitModifier -> parameterModifier");
         } else if (typeParameterModifierContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitModifier -> typeParameterModifier");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitClassModifier(final KotlinParser.ClassModifierContext context) {
+        final TerminalNode enumTerminal = context.ENUM();
+        final TerminalNode sealedTerminal = context.SEALED();
+        final TerminalNode annotationTerminal = context.ANNOTATION();
+        final TerminalNode dataTerminal = context.DATA();
+        final TerminalNode innerTerminal = context.INNER();
+        final StringBuilder text = new StringBuilder();
+        if (enumTerminal != null) {
+            text.append(this.visit(enumTerminal));
+        } else if (sealedTerminal != null) {
+            text.append(this.visit(sealedTerminal));
+        } else if (annotationTerminal != null) {
+            text.append(this.visit(annotationTerminal));
+        } else if (dataTerminal != null) {
+            text.append(this.visit(dataTerminal));
+        } else if (innerTerminal != null) {
+            text.append(this.visit(innerTerminal));
         }
         return text.toString();
     }
