@@ -506,7 +506,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.TypeAliasContext typeAliasContext = context.typeAlias();
         final StringBuilder text = new StringBuilder();
         if (classDeclarationContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassMemberDeclaration -> classDeclaration");
+            text.append(this.visit(classDeclarationContext));
         } else if (functionDeclarationContext != null) {
             text.append(this.visit(functionDeclarationContext));
         } else if (objectDeclarationContext != null) {

@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatSealedClass() {
+        this.compare("sealed-class-before.kt", "sealed-class-after.kt");
+    }
+
+    @Test
     void shouldFormatDataClass() {
         this.compare("data-class-before.kt", "data-class-after.kt");
     }
