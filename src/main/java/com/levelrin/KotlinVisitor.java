@@ -345,8 +345,22 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (userTypeContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitDelegationSpecifier -> userType");
         } else if (explicitDelegationContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitDelegationSpecifier -> explicitDelegation");
+            text.append(this.visit(explicitDelegationContext));
         }
+        return text.toString();
+    }
+
+    @Override
+    public String visitExplicitDelegation(final KotlinParser.ExplicitDelegationContext context) {
+        final KotlinParser.UserTypeContext userTypeContext = context.userType();
+        final TerminalNode byTerminal = context.BY();
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(userTypeContext))
+            .append(' ')
+            .append(this.visit(byTerminal))
+            .append(' ')
+            .append(this.visit(expressionContext));
         return text.toString();
     }
 
@@ -1118,10 +1132,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (callableReferenceContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPostfixUnaryExpression -> callableReference");
         }
-        if (postfixUnaryOperationContexts.size() > 1) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPostfixUnaryExpression -> postfixUnaryOperationContexts.size() > 1");
-        } else if (postfixUnaryOperationContexts.size() == 1) {
-            final KotlinParser.PostfixUnaryOperationContext postfixUnaryOperationContext = postfixUnaryOperationContexts.get(0);
+        for (final KotlinParser.PostfixUnaryOperationContext postfixUnaryOperationContext : postfixUnaryOperationContexts) {
             text.append(this.visit(postfixUnaryOperationContext));
         }
         return text.toString();

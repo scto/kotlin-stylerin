@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatDelegation() {
+        this.compare("delegation-before.kt", "delegation-after.kt");
+    }
+
+    @Test
     void shouldFormatSealedClass() {
         this.compare("sealed-class-before.kt", "sealed-class-after.kt");
     }
