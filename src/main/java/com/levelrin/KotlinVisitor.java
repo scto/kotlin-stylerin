@@ -3,6 +3,7 @@ package com.levelrin;
 import com.levelrin.antlr.generated.KotlinParser;
 import com.levelrin.antlr.generated.KotlinParserBaseVisitor;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
@@ -121,7 +122,82 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (propertyDeclarationContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitTopLevelObject -> propertyDeclaration");
         } else if (typeAliasContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitTopLevelObject -> typeAlias");
+            text.append(this.visit(typeAliasContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitTypeAlias(final KotlinParser.TypeAliasContext context) {
+        final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
+        final TerminalNode typeAliasTerminal = context.TYPE_ALIAS();
+        final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
+        final KotlinParser.TypeParametersContext typeParametersContext = context.typeParameters();
+        final TerminalNode assignmentTerminal = context.ASSIGNMENT();
+        final KotlinParser.TypeContext typeContext = context.type();
+        final StringBuilder text = new StringBuilder();
+        if (modifierListContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitTypeAlias -> modifierList");
+        }
+        text.append(this.visit(typeAliasTerminal))
+            .append(' ')
+            .append(this.visit(simpleIdentifierContext));
+        if (typeParametersContext != null) {
+            text.append(this.visit(typeParametersContext));
+        }
+        text.append(' ')
+            .append(this.visit(assignmentTerminal))
+            .append(' ')
+            .append(this.visit(typeContext));
+        return text.toString();
+    }
+
+    @Override
+    public String visitTypeParameters(final KotlinParser.TypeParametersContext context) {
+        final TerminalNode langleTerminal = context.LANGLE();
+        final List<KotlinParser.TypeParameterContext> typeParameterContexts = context.typeParameter();
+        final List<TerminalNode> commaTerminals = context.COMMA();
+        final TerminalNode rangleTerminal = context.RANGLE();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(langleTerminal));
+        final KotlinParser.TypeParameterContext firstTypeParameter = typeParameterContexts.get(0);
+        text.append(this.visit(firstTypeParameter));
+        for (int index = 1; index < typeParameterContexts.size(); index++) {
+            final TerminalNode commaTerminal = commaTerminals.get(index - 1);
+            final KotlinParser.TypeParameterContext typeParameterContext = typeParameterContexts.get(index);
+            text.append(this.visit(commaTerminal))
+                .append(' ')
+                .append(this.visit(typeParameterContext));
+        }
+        if (typeParameterContexts.size() == commaTerminals.size()) {
+            final TerminalNode commaTerminal = commaTerminals.get(commaTerminals.size() - 1);
+            text.append(this.visit(commaTerminal));
+        }
+        text.append(this.visit(rangleTerminal));
+        return text.toString();
+    }
+
+    @Override
+    public String visitTypeParameter(final KotlinParser.TypeParameterContext context) {
+        final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
+        final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
+        final TerminalNode multTerminal = context.MULT();
+        final TerminalNode colonTerminal = context.COLON();
+        final KotlinParser.TypeContext typeContext = context.type();
+        final StringBuilder text = new StringBuilder();
+        if (modifierListContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitTypeParameter -> modifierList");
+        }
+        if (simpleIdentifierContext != null) {
+            text.append(this.visit(simpleIdentifierContext));
+        } else if (multTerminal != null) {
+            text.append(this.visit(multTerminal));
+        }
+        if (colonTerminal != null) {
+            text.append(' ')
+                .append(this.visit(colonTerminal))
+                .append(' ')
+                .append(this.visit(typeContext));
         }
         return text.toString();
     }
@@ -860,7 +936,53 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         text.append(this.visit(simpleIdentifierContext));
         if (typeArgumentsContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSimpleUserType -> typeArguments");
+            text.append(this.visit(typeArgumentsContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitTypeArguments(final KotlinParser.TypeArgumentsContext context) {
+        final TerminalNode langleTerminal = context.LANGLE();
+        final List<KotlinParser.TypeProjectionContext> typeProjectionContexts = context.typeProjection();
+        final List<TerminalNode> commaTerminals = context.COMMA();
+        final TerminalNode rangleTerminal = context.RANGLE();
+        final TerminalNode questTerminal = context.QUEST();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(langleTerminal));
+        final KotlinParser.TypeProjectionContext firstTypeProjectionContext = typeProjectionContexts.get(0);
+        text.append(this.visit(firstTypeProjectionContext));
+        for (int index = 1; index < typeProjectionContexts.size(); index++) {
+            final TerminalNode commaTerminal = commaTerminals.get(index - 1);
+            final KotlinParser.TypeProjectionContext typeProjectionContext = typeProjectionContexts.get(index);
+            text.append(this.visit(commaTerminal))
+                .append(' ')
+                .append(this.visit(typeProjectionContext));
+        }
+        if (typeProjectionContexts.size() == commaTerminals.size()) {
+            final TerminalNode commaTerminal = commaTerminals.get(commaTerminals.size() - 1);
+            text.append(this.visit(commaTerminal));
+        }
+        text.append(this.visit(rangleTerminal));
+        if (questTerminal != null) {
+            text.append(this.visit(questTerminal));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitTypeProjection(final KotlinParser.TypeProjectionContext context) {
+        final KotlinParser.TypeProjectionModifierListContext typeProjectionModifierListContext = context.typeProjectionModifierList();
+        final KotlinParser.TypeContext typeContext = context.type();
+        final TerminalNode multTerminal = context.MULT();
+        final StringBuilder text = new StringBuilder();
+        if (typeContext != null) {
+            if (typeProjectionModifierListContext != null) {
+                throw new UnsupportedOperationException("The following parsing path is not supported yet: visitTypeProjection -> typeProjectionModifierList");
+            }
+            text.append(this.visit(typeContext));
+        } else if(multTerminal != null) {
+            text.append(this.visit(multTerminal));
         }
         return text.toString();
     }

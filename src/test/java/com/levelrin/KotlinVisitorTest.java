@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatTypeAlias() {
+        this.compare("type-alias-before.kt", "type-alias-after.kt");
+    }
+
+    @Test
     void shouldFormatDelegation() {
         this.compare("delegation-before.kt", "delegation-after.kt");
     }
