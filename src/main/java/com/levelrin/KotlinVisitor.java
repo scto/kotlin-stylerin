@@ -48,8 +48,10 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (fileAnnotationsContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPreamble -> fileAnnotations");
         }
-        text.append(this.visit(packageHeaderContext));
-        this.appendNewLinesAndIndent(text, 2);
+        if (!packageHeaderContext.getText().isEmpty()) {
+            text.append(this.visit(packageHeaderContext));
+            this.appendNewLinesAndIndent(text, 2);
+        }
         text.append(this.visit(importListContext));
         return text.toString();
     }
@@ -228,7 +230,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         text.append(' ')
             .append(this.visit(simpleIdentifierContext));
         if (typeParametersContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassDeclaration -> typeParameters");
+            text.append(this.visit(typeParametersContext));
         }
         if (primaryConstructorContext != null) {
             text.append(this.visit(primaryConstructorContext));
@@ -374,7 +376,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.ExpressionContext expressionContext = context.expression();
         final StringBuilder text = new StringBuilder();
         if (modifierListContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassParameter -> modifierList");
+            text.append(this.visit(modifierListContext))
+                .append(' ');
         }
         if (valTerminal != null) {
             text.append(this.visit(valTerminal))
@@ -494,11 +497,11 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (memberModifierContext != null) {
             text.append(this.visit(memberModifierContext));
         } else if (visibilityModifierContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitModifier -> visibilityModifier");
+            text.append(this.visit(visibilityModifierContext));
         } else if (varianceAnnotationContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitModifier -> varianceAnnotation");
         } else if (functionModifierContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitModifier -> functionModifier");
+            text.append(this.visit(functionModifierContext));
         } else if (propertyModifierContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitModifier -> propertyModifier");
         } else if (inheritanceModifierContext != null) {
@@ -507,6 +510,50 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitModifier -> parameterModifier");
         } else if (typeParameterModifierContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitModifier -> typeParameterModifier");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitFunctionModifier(final KotlinParser.FunctionModifierContext context) {
+        final TerminalNode tailrecTerminal = context.TAILREC();
+        final TerminalNode operatorTerminal = context.OPERATOR();
+        final TerminalNode infixTerminal = context.INFIX();
+        final TerminalNode inlineTerminal = context.INLINE();
+        final TerminalNode externalTerminal = context.EXTERNAL();
+        final TerminalNode suspendTerminal = context.SUSPEND();
+        final StringBuilder text = new StringBuilder();
+        if (tailrecTerminal != null) {
+            text.append(this.visit(tailrecTerminal));
+        } else if (operatorTerminal != null) {
+            text.append(this.visit(operatorTerminal));
+        } else if (infixTerminal != null) {
+            text.append(this.visit(infixTerminal));
+        } else if (inlineTerminal != null) {
+            text.append(this.visit(inlineTerminal));
+        } else if (externalTerminal != null) {
+            text.append(this.visit(externalTerminal));
+        } else if (suspendTerminal != null) {
+            text.append(this.visit(suspendTerminal));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitVisibilityModifier(final KotlinParser.VisibilityModifierContext context) {
+        final TerminalNode publicTerminal = context.PUBLIC();
+        final TerminalNode privateTerminal = context.PRIVATE();
+        final TerminalNode internalTerminal = context.INTERNAL();
+        final TerminalNode protectedTerminal = context.PROTECTED();
+        final StringBuilder text = new StringBuilder();
+        if (publicTerminal != null) {
+            text.append(this.visit(publicTerminal));
+        } else if (privateTerminal != null) {
+            text.append(this.visit(privateTerminal));
+        } else if (internalTerminal != null) {
+            text.append(this.visit(internalTerminal));
+        } else if (protectedTerminal != null) {
+            text.append(this.visit(protectedTerminal));
         }
         return text.toString();
     }
@@ -840,14 +887,14 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         }
         if (expressionContext != null) {
             // (NL* (BY | ASSIGNMENT) NL* expression)?
+            text.append(' ');
             if (byTerminal != null) {
-                throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> by");
+                text.append(this.visit(byTerminal));
             } else if (assignmentTerminal != null) {
-                text.append(' ')
-                    .append(this.visit(assignmentTerminal))
-                    .append(' ')
-                    .append(this.visit(expressionContext));
+                text.append(this.visit(assignmentTerminal));
             }
+            text.append(' ')
+                .append(this.visit(expressionContext));
         }
         // (NL* getter (semi setter)? | NL* setter (semi getter)?)?
         if (getterContext != null) {
@@ -890,9 +937,27 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (parenthesizedTypeContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitType -> parenthesizedType");
         } else if (nullableTypeContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitType -> nullableType");
+            text.append(this.visit(nullableTypeContext));
         } else if (typeReferenceContext != null) {
             text.append(this.visit(typeReferenceContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitNullableType(final KotlinParser.NullableTypeContext context) {
+        final KotlinParser.TypeReferenceContext typeReferenceContext = context.typeReference();
+        final KotlinParser.ParenthesizedTypeContext parenthesizedTypeContext = context.parenthesizedType();
+        final List<TerminalNode> questTerminals = context.QUEST();
+        final StringBuilder text = new StringBuilder();
+        if (typeReferenceContext != null) {
+            text.append(this.visit(typeReferenceContext));
+        } else if (parenthesizedTypeContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitNullableType -> parenthesizedType");
+        }
+        if (!questTerminals.isEmpty()) {
+            final TerminalNode questTerminal = questTerminals.get(0);
+            text.append(this.visit(questTerminal));
         }
         return text.toString();
     }
@@ -1008,8 +1073,38 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         final KotlinParser.DisjunctionContext firstDisjunctionContext = disjunctionContexts.get(0);
         text.append(this.visit(firstDisjunctionContext));
-        if (!assignmentOperatorContexts.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitExpression -> assignmentOperator");
+        for (int index = 0; index < assignmentOperatorContexts.size(); index++) {
+            final KotlinParser.AssignmentOperatorContext assignmentOperatorContext = assignmentOperatorContexts.get(index);
+            final KotlinParser.DisjunctionContext disjunctionContext = disjunctionContexts.get(index + 1);
+            text.append(' ')
+                .append(this.visit(assignmentOperatorContext))
+                .append(' ')
+                .append(this.visit(disjunctionContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitAssignmentOperator(final KotlinParser.AssignmentOperatorContext context) {
+        final TerminalNode assignmentTerminal = context.ASSIGNMENT();
+        final TerminalNode addAssignmentTerminal = context.ADD_ASSIGNMENT();
+        final TerminalNode subAssignmentTerminal = context.SUB_ASSIGNMENT();
+        final TerminalNode multAssignmentTerminal = context.MULT_ASSIGNMENT();
+        final TerminalNode divAssignmentTerminal = context.DIV_ASSIGNMENT();
+        final TerminalNode modAssignmentTerminal = context.MOD_ASSIGNMENT();
+        final StringBuilder text = new StringBuilder();
+        if (assignmentTerminal != null) {
+            text.append(this.visit(assignmentTerminal));
+        } else if (addAssignmentTerminal != null) {
+            text.append(this.visit(addAssignmentTerminal));
+        } else if (subAssignmentTerminal != null) {
+            text.append(this.visit(subAssignmentTerminal));
+        } else if (multAssignmentTerminal != null) {
+            text.append(this.visit(multAssignmentTerminal));
+        } else if (divAssignmentTerminal != null) {
+            text.append(this.visit(divAssignmentTerminal));
+        } else if (modAssignmentTerminal != null) {
+            text.append(this.visit(modAssignmentTerminal));
         }
         return text.toString();
     }
@@ -1808,20 +1903,39 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitLineStringLiteral(final KotlinParser.LineStringLiteralContext context) {
         final TerminalNode quoteOpenTerminal = context.QUOTE_OPEN();
-        final List<KotlinParser.LineStringContentContext> lineStringContentContexts = context.lineStringContent();
-        final List<KotlinParser.LineStringExpressionContext> lineStringExpressionContexts = context.lineStringExpression();
+        final List<KotlinParser.LineStringContentOrExpressionContext> lineStringContentOrExpressionContexts = context.lineStringContentOrExpression();
         final TerminalNode quoteCloseTerminal = context.QUOTE_CLOSE();
         final StringBuilder text = new StringBuilder();
         text.append(this.visit(quoteOpenTerminal));
-        if (!lineStringContentContexts.isEmpty()) {
-            for (final KotlinParser.LineStringContentContext lineStringContentContext : lineStringContentContexts) {
-                text.append(this.visit(lineStringContentContext));
-            }
-        }
-        if (!lineStringExpressionContexts.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitLineStringLiteral -> lineStringExpression");
+        for (final KotlinParser.LineStringContentOrExpressionContext lineStringContentOrExpressionContext : lineStringContentOrExpressionContexts) {
+            text.append(this.visit(lineStringContentOrExpressionContext));
         }
         text.append(this.visit(quoteCloseTerminal));
+        return text.toString();
+    }
+
+    @Override
+    public String visitLineStringContentOrExpression(final KotlinParser.LineStringContentOrExpressionContext context) {
+        final KotlinParser.LineStringContentContext lineStringContentContext = context.lineStringContent();
+        final KotlinParser.LineStringExpressionContext lineStringExpressionContext = context.lineStringExpression();
+        final StringBuilder text = new StringBuilder();
+        if (lineStringContentContext != null) {
+            text.append(this.visit(lineStringContentContext));
+        } else if (lineStringExpressionContext != null) {
+            text.append(this.visit(lineStringExpressionContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitLineStringExpression(final KotlinParser.LineStringExpressionContext context) {
+        final TerminalNode lineStrExprStartTerminal = context.LineStrExprStart();
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final TerminalNode rcurlTerminal = context.RCURL();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(lineStrExprStartTerminal))
+            .append(this.visit(expressionContext))
+            .append(this.visit(rcurlTerminal));
         return text.toString();
     }
 

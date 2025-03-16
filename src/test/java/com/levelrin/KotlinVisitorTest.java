@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatDelegatedProperties() {
+        this.compare("delegated-properties-before.kt", "delegated-properties-after.kt");
+    }
+
+    @Test
     void shouldFormatTypeAlias() {
         this.compare("type-alias-before.kt", "type-alias-after.kt");
     }

@@ -444,7 +444,13 @@ stringLiteral
     ;
 
 lineStringLiteral
-    : QUOTE_OPEN (lineStringContent | lineStringExpression)* QUOTE_CLOSE
+    : QUOTE_OPEN lineStringContentOrExpression* QUOTE_CLOSE
+    ;
+
+// This is a rule that we created for easier parsing.
+lineStringContentOrExpression
+    : lineStringContent
+    | lineStringExpression
     ;
 
 multiLineStringLiteral
