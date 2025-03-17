@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatObjects() {
+        this.compare("object-before.kt", "object-after.kt");
+    }
+
+    @Test
     void shouldFormatDelegatedProperties() {
         this.compare("delegated-properties-before.kt", "delegated-properties-after.kt");
     }

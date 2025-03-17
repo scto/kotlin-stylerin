@@ -649,7 +649,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (objectDeclarationContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassMemberDeclaration -> objectDeclaration");
         } else if (companionObjectContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassMemberDeclaration -> companionObject");
+            text.append(this.visit(companionObjectContext));
         } else if (propertyDeclarationContext != null) {
             text.append(this.visit(propertyDeclarationContext));
         } else if (anonymousInitializerContext != null) {
@@ -658,6 +658,36 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(secondaryConstructorContext));
         } else if (typeAliasContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassMemberDeclaration -> typeAlias");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitCompanionObject(final KotlinParser.CompanionObjectContext context) {
+        final List<KotlinParser.ModifierListContext> modifierListContexts = context.modifierList();
+        final TerminalNode companionTerminal = context.COMPANION();
+        final TerminalNode objectTerminal = context.OBJECT();
+        final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
+        final TerminalNode colonTerminal = context.COLON();
+        final KotlinParser.DelegationSpecifiersContext delegationSpecifiersContext = context.delegationSpecifiers();
+        final KotlinParser.ClassBodyContext classBodyContext = context.classBody();
+        final StringBuilder text = new StringBuilder();
+        if (!modifierListContexts.isEmpty()) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitCompanionObject -> modifierList");
+        }
+        text.append(this.visit(companionTerminal))
+            .append(' ')
+            .append(this.visit(objectTerminal));
+        if (simpleIdentifierContext != null) {
+            text.append(' ')
+                .append(this.visit(simpleIdentifierContext));
+        }
+        if (colonTerminal != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitCompanionObject -> colon");
+        }
+        if (classBodyContext != null) {
+            text.append(' ')
+                .append(this.visit(classBodyContext));
         }
         return text.toString();
     }
