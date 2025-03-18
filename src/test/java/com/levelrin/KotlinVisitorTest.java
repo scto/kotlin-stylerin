@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatExtensions() {
+        this.compare("extension-before.kt", "extension-after.kt");
+    }
+
+    @Test
     void shouldFormatObjects() {
         this.compare("object-before.kt", "object-after.kt");
     }
