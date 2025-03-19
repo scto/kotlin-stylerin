@@ -974,13 +974,102 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitType -> typeModifierList");
         }
         if (functionTypeContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitType -> functionType");
+            text.append(this.visit(functionTypeContext));
         } else if (parenthesizedTypeContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitType -> parenthesizedType");
         } else if (nullableTypeContext != null) {
             text.append(this.visit(nullableTypeContext));
         } else if (typeReferenceContext != null) {
             text.append(this.visit(typeReferenceContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitFunctionType(final KotlinParser.FunctionTypeContext context) {
+        final KotlinParser.FunctionTypeReceiverContext functionTypeReceiverContext = context.functionTypeReceiver();
+        final TerminalNode dotTerminal = context.DOT();
+        final KotlinParser.FunctionTypeParametersContext functionTypeParametersContext = context.functionTypeParameters();
+        final TerminalNode arrowTerminal = context.ARROW();
+        final KotlinParser.TypeContext typeContext = context.type();
+        final StringBuilder text = new StringBuilder();
+        if (functionTypeReceiverContext != null) {
+            text.append(this.visit(functionTypeReceiverContext))
+                .append(this.visit(dotTerminal));
+        }
+        text.append(this.visit(functionTypeParametersContext))
+            .append(' ')
+            .append(this.visit(arrowTerminal))
+            .append(' ')
+            .append(this.visit(typeContext));
+        return text.toString();
+    }
+
+    @Override
+    public String visitFunctionTypeReceiver(final KotlinParser.FunctionTypeReceiverContext context) {
+        final KotlinParser.ParenthesizedTypeContext parenthesizedTypeContext = context.parenthesizedType();
+        final KotlinParser.NullableTypeContext nullableTypeContext = context.nullableType();
+        final KotlinParser.TypeReferenceContext typeReferenceContext = context.typeReference();
+        final StringBuilder text = new StringBuilder();
+        if (parenthesizedTypeContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionTypeReceiver -> parenthesizedType");
+        } else if (nullableTypeContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionTypeReceiver -> nullableType");
+        } else if (typeReferenceContext != null) {
+            text.append(this.visit(typeReferenceContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitFunctionTypeParameters(final KotlinParser.FunctionTypeParametersContext context) {
+        final TerminalNode lparenTerminal = context.LPAREN();
+        final KotlinParser.FirstParamOrTypeOfFuncTypeParamsContext firstParamOrTypeOfFuncTypeParamsContext = context.firstParamOrTypeOfFuncTypeParams();
+        final List<TerminalNode> commaTerminals = context.COMMA();
+        final List<KotlinParser.SecondParamOrTypeOfFuncTypeParamsContext> secondParamOrTypeOfFuncTypeParamsContexts = context.secondParamOrTypeOfFuncTypeParams();
+        final TerminalNode rparenTerminal = context.RPAREN();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(lparenTerminal));
+        if (firstParamOrTypeOfFuncTypeParamsContext != null) {
+            text.append(this.visit(firstParamOrTypeOfFuncTypeParamsContext));
+        }
+        for (int index = 0; index < secondParamOrTypeOfFuncTypeParamsContexts.size(); index++) {
+            final TerminalNode commaTerminal = context.COMMA(index);
+            final KotlinParser.SecondParamOrTypeOfFuncTypeParamsContext secondParamOrTypeOfFuncTypeParamsContext = secondParamOrTypeOfFuncTypeParamsContexts.get(index);
+            text.append(this.visit(commaTerminal))
+                .append(' ')
+                .append(this.visit(secondParamOrTypeOfFuncTypeParamsContext));
+        }
+        if (secondParamOrTypeOfFuncTypeParamsContexts.size() < commaTerminals.size()) {
+            final TerminalNode commaTerminal = commaTerminals.get(commaTerminals.size() - 1);
+            text.append(this.visit(commaTerminal));
+        }
+        text.append(this.visit(rparenTerminal));
+        return text.toString();
+    }
+
+    @Override
+    public String visitFirstParamOrTypeOfFuncTypeParams(final KotlinParser.FirstParamOrTypeOfFuncTypeParamsContext context) {
+        final KotlinParser.ParameterContext parameterContext = context.parameter();
+        final KotlinParser.TypeContext typeContext = context.type();
+        final StringBuilder text = new StringBuilder();
+        if (parameterContext != null) {
+            text.append(this.visit(parameterContext));
+        } else if (typeContext != null) {
+            text.append(this.visit(typeContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitSecondParamOrTypeOfFuncTypeParams(final KotlinParser.SecondParamOrTypeOfFuncTypeParamsContext context) {
+        final KotlinParser.ParameterContext parameterContext = context.parameter();
+        final KotlinParser.TypeContext typeContext = context.type();
+        final StringBuilder text = new StringBuilder();
+        if (parameterContext != null) {
+            text.append(this.visit(parameterContext));
+        } else if (typeContext != null) {
+            text.append(this.visit(typeContext));
         }
         return text.toString();
     }
@@ -1388,10 +1477,45 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (atomicExpressionContext != null) {
             text.append(this.visit(atomicExpressionContext));
         } else if (callableReferenceContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPostfixUnaryExpression -> callableReference");
+            text.append(this.visit(callableReferenceContext));
         }
         for (final KotlinParser.PostfixUnaryOperationContext postfixUnaryOperationContext : postfixUnaryOperationContexts) {
             text.append(this.visit(postfixUnaryOperationContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitCallableReference(final KotlinParser.CallableReferenceContext context) {
+        final KotlinParser.UserTypeContext userTypeContext = context.userType();
+        final List<TerminalNode> questTerminals = context.QUEST();
+        final TerminalNode coloncolonTerminal = context.COLONCOLON();
+        final TerminalNode qColoncolonTerminal = context.Q_COLONCOLON();
+        final KotlinParser.IdentifierContext identifierContext = context.identifier();
+        final TerminalNode classTerminal = context.CLASS();
+        final TerminalNode thisTerminal = context.THIS();
+        final StringBuilder text = new StringBuilder();
+        if (thisTerminal == null) {
+            // (userType (QUEST NL*)*)? NL* (COLONCOLON | Q_COLONCOLON) NL* (identifier | CLASS)
+            if (userTypeContext != null) {
+                text.append(this.visit(userTypeContext));
+                if (!questTerminals.isEmpty()) {
+                    throw new UnsupportedOperationException("The following parsing path is not supported yet: visitCallableReference -> quest");
+                }
+            }
+            if (coloncolonTerminal != null) {
+                text.append(this.visit(coloncolonTerminal));
+            } else if (qColoncolonTerminal != null) {
+                throw new UnsupportedOperationException("The following parsing path is not supported yet: visitCallableReference -> qColoncolon");
+            }
+            if (identifierContext != null) {
+                text.append(this.visit(identifierContext));
+            } else if (classTerminal != null) {
+                text.append(this.visit(classTerminal));
+            }
+        } else {
+            // THIS NL* COLONCOLON NL* CLASS
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitCallableReference -> this");
         }
         return text.toString();
     }

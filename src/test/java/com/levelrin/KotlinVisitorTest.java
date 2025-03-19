@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatLambda() {
+        this.compare("lambda-before.kt", "lambda-after.kt");
+    }
+
+    @Test
     void shouldFormatExtensions() {
         this.compare("extension-before.kt", "extension-after.kt");
     }

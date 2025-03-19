@@ -283,7 +283,19 @@ simpleUserType
 
 //parameters for functionType
 functionTypeParameters
-    : LPAREN NL* (parameter | type)? (NL* COMMA NL* (parameter | type))* (NL* COMMA)? NL* RPAREN
+    : LPAREN NL* firstParamOrTypeOfFuncTypeParams? (NL* COMMA NL* secondParamOrTypeOfFuncTypeParams)* (NL* COMMA)? NL* RPAREN
+    ;
+
+// This is a rule that we created for easier parsing.
+firstParamOrTypeOfFuncTypeParams
+    : parameter
+    | type
+    ;
+
+// This is a rule that we created for easier parsing.
+secondParamOrTypeOfFuncTypeParams
+    : parameter
+    | type
     ;
 
 typeConstraints
