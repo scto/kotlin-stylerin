@@ -1740,7 +1740,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (conditionalExpressionContext != null) {
             text.append(this.visit(conditionalExpressionContext));
         } else if (tryExpressionContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> tryExpression");
+            text.append(this.visit(tryExpressionContext));
         } else if (objectLiteralContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> objectLiteral");
         } else if (jumpExpressionContext != null) {
@@ -1754,6 +1754,65 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (valTerminal != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> val");
         }
+        return text.toString();
+    }
+
+    @Override
+    public String visitTryExpression(final KotlinParser.TryExpressionContext context) {
+        final TerminalNode tryTerminal = context.TRY();
+        final KotlinParser.BlockContext blockContext = context.block();
+        final List<KotlinParser.CatchBlockContext> catchBlockContexts = context.catchBlock();
+        final KotlinParser.FinallyBlockContext finallyBlockContext = context.finallyBlock();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(tryTerminal))
+            .append(' ')
+            .append(this.visit(blockContext));
+        for (final KotlinParser.CatchBlockContext catchBlockContext : catchBlockContexts) {
+            text.append(' ')
+                .append(this.visit(catchBlockContext));
+        }
+        if (finallyBlockContext != null) {
+            text.append(' ')
+                .append(this.visit(finallyBlockContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitFinallyBlock(final KotlinParser.FinallyBlockContext context) {
+        final TerminalNode finallyTerminal = context.FINALLY();
+        final KotlinParser.BlockContext blockContext = context.block();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(finallyTerminal))
+            .append(' ')
+            .append(this.visit(blockContext));
+        return text.toString();
+    }
+
+    @Override
+    public String visitCatchBlock(final KotlinParser.CatchBlockContext context) {
+        final TerminalNode catchTerminal = context.CATCH();
+        final TerminalNode lparenTerminal = context.LPAREN();
+        final List<KotlinParser.AnnotationsContext> annotationsContexts = context.annotations();
+        final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
+        final TerminalNode colonTerminal = context.COLON();
+        final KotlinParser.UserTypeContext userTypeContext = context.userType();
+        final TerminalNode rparenTerminal = context.RPAREN();
+        final KotlinParser.BlockContext blockContext = context.block();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(catchTerminal))
+            .append(' ')
+            .append(this.visit(lparenTerminal));
+        if (!annotationsContexts.isEmpty()) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitCatchBlock -> annotations");
+        }
+        text.append(this.visit(simpleIdentifierContext))
+            .append(this.visit(colonTerminal))
+            .append(' ')
+            .append(this.visit(userTypeContext))
+            .append(this.visit(rparenTerminal))
+            .append(' ')
+            .append(this.visit(blockContext));
         return text.toString();
     }
 

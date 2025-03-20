@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatException() {
+        this.compare("exception-before.kt", "exception-after.kt");
+    }
+
+    @Test
     void shouldFormatLambda() {
         this.compare("lambda-before.kt", "lambda-after.kt");
     }
