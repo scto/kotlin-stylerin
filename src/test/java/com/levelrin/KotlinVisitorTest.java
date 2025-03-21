@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatTypeCast() {
+        this.compare("type-cast-before.kt", "type-cast-after.kt");
+    }
+
+    @Test
     void shouldFormatException() {
         this.compare("exception-before.kt", "exception-after.kt");
     }

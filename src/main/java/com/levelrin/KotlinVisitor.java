@@ -1342,17 +1342,35 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     public String visitNamedInfix(final KotlinParser.NamedInfixContext context) {
         final List<KotlinParser.ElvisExpressionContext> elvisExpressionContexts = context.elvisExpression();
         final List<KotlinParser.InOperatorContext> inoperatorContexts = context.inOperator();
-        // todo: use `isOperatorContext` with tests.
         final KotlinParser.IsOperatorContext isOperatorContext = context.isOperator();
         final KotlinParser.TypeContext typeContext = context.type();
         final StringBuilder text = new StringBuilder();
         final KotlinParser.ElvisExpressionContext firstElvisExpressionContext = elvisExpressionContexts.get(0);
         text.append(this.visit(firstElvisExpressionContext));
         if (!inoperatorContexts.isEmpty()) {
+            // (inOperator NL* elvisExpression)+
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitNamedInfix -> inOperator");
         }
-        if (typeContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitNamedInfix -> type");
+        if (isOperatorContext != null) {
+            // isOperator NL* type
+            text.append(' ')
+                .append(this.visit(isOperatorContext))
+                .append(' ')
+                .append(this.visit(typeContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitIsOperator(final KotlinParser.IsOperatorContext context) {
+        final TerminalNode isTerminal = context.IS();
+        final TerminalNode notIsTerminal = context.NOT_IS();
+        final StringBuilder text = new StringBuilder();
+        if (isTerminal != null) {
+            text.append(this.visit(isTerminal));
+        } else if (notIsTerminal != null) {
+            // notIsTerminal may have whitespaces at the end.
+            text.append(this.visit(notIsTerminal).trim());
         }
         return text.toString();
     }
@@ -1377,8 +1395,13 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         final KotlinParser.RangeExpressionContext firstRangeExpressionContext = rangeExpressionContexts.get(0);
         text.append(this.visit(firstRangeExpressionContext));
-        if (!simpleIdentifierContexts.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitInfixFunctionCall -> simpleIdentifier");
+        for (int index = 0; index < simpleIdentifierContexts.size(); index++) {
+            final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = simpleIdentifierContexts.get(index);
+            final KotlinParser.RangeExpressionContext rangeExpressionContext = rangeExpressionContexts.get(index + 1);
+            text.append(' ')
+                .append(this.visit(simpleIdentifierContext))
+                .append(' ')
+                .append(this.visit(rangeExpressionContext));
         }
         return text.toString();
     }
@@ -1450,8 +1473,29 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         final KotlinParser.PrefixUnaryExpressionContext firstPrefixUnaryExpressionContext = prefixUnaryExpressionContexts.get(0);
         text.append(this.visit(firstPrefixUnaryExpressionContext));
-        if (!typeOperationContexts.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitTypeRHS -> typeOperation");
+        for (int index = 0; index < typeOperationContexts.size(); index++) {
+            final KotlinParser.TypeOperationContext typeOperationContext = typeOperationContexts.get(index);
+            final KotlinParser.PrefixUnaryExpressionContext prefixUnaryExpressionContext = prefixUnaryExpressionContexts.get(index + 1);
+            text.append(' ')
+                .append(this.visit(typeOperationContext))
+                .append(' ')
+                .append(this.visit(prefixUnaryExpressionContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitTypeOperation(final KotlinParser.TypeOperationContext context) {
+        final TerminalNode asTerminal = context.AS();
+        final TerminalNode asSafeTerminal = context.AS_SAFE();
+        final TerminalNode colonTerminal = context.COLON();
+        final StringBuilder text = new StringBuilder();
+        if (asTerminal != null) {
+            text.append(this.visit(asTerminal));
+        } else if (asSafeTerminal != null) {
+            text.append(this.visit(asSafeTerminal));
+        } else if (colonTerminal != null) {
+            text.append(this.visit(colonTerminal));
         }
         return text.toString();
     }
@@ -2075,8 +2119,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             .append(this.visit(expressionContext))
             .append(this.visit(rparenTerminal));
         if (firstControlStructureBodyOfIfExpressionContext != null) {
-            text
-                .append(' ')
+            text.append(' ')
                 .append(this.visit(firstControlStructureBodyOfIfExpressionContext));
         }
         if (semicolonTerminal != null) {
