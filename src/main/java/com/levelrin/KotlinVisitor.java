@@ -2,9 +2,9 @@ package com.levelrin;
 
 import com.levelrin.antlr.generated.KotlinParser;
 import com.levelrin.antlr.generated.KotlinParserBaseVisitor;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -16,6 +16,18 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     private static final Logger LOGGER = LoggerFactory.getLogger(KotlinVisitor.class);
 
     private static final String INDENT_UNIT = "    ";
+
+    /**
+     * Whenever we visit a rule, we will record its count.
+     * The purpose is to know what went down when we visit a child context.
+     * Ex: For example, we want to format the constructor call differently
+     *     if the child also calls the constructor (nested constructor calls).
+     *     We can identify the nested constructor calls by checking the constructor call counts
+     *     after visiting the child context.
+     * Key - Simple class name of the context. Ex: KotlinFileContext.
+     * Value - Number of visits.
+     */
+    private Map<String, Integer> ruleVisitCounts = new HashMap<>();
 
     private int currentIndentLevel;
 
@@ -391,7 +403,10 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             .append(' ')
             .append(this.visit(typeContext));
         if (assignmentTerminal != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassParameter -> assignment");
+            text.append(' ')
+                .append(this.visit(assignmentTerminal))
+                .append(' ')
+                .append(this.visit(expressionContext));
         }
         return text.toString();
     }
@@ -1709,6 +1724,66 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
 
     @Override
     public String visitValueArguments(final KotlinParser.ValueArgumentsContext context) {
+        final StringBuilder text = new StringBuilder();
+        final int visitValueArgumentsCountBefore = this.ruleVisitCounts.getOrDefault(KotlinParser.ValueArgumentsContext.class.getSimpleName(), 0);
+        final String withIndentation = this.visitValueArgumentsWithIndentation(context);
+        final int visitValueArgumentsCountAfter = this.ruleVisitCounts.getOrDefault(KotlinParser.ValueArgumentsContext.class.getSimpleName(), 0);
+        if (visitValueArgumentsCountBefore < visitValueArgumentsCountAfter) {
+            text.append(withIndentation);
+        } else {
+            text.append(this.visitValueArgumentsWithoutIndentation(context));
+        }
+        return text.toString();
+    }
+
+    /**
+     * It's for {@link KotlinVisitor#visitValueArguments(KotlinParser.ValueArgumentsContext)}.
+     * There is a case where parameters are nested like this: `RussianDoll("Rin",RussianDoll("Revomin",RussianDoll("Ian")))`.
+     * In such as a case, we want to indent them.
+     * @param context As is.
+     * @return Formatted text with the assumption that the parameters are nested.
+     */
+    private String visitValueArgumentsWithIndentation(final KotlinParser.ValueArgumentsContext context) {
+        final TerminalNode lparenTerminal = context.LPAREN();
+        final List<KotlinParser.ValueArgumentContext> valueArgumentContexts = context.valueArgument();
+        final List<TerminalNode> commaTerminals = context.COMMA();
+        final TerminalNode rparenTerminal = context.RPAREN();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(lparenTerminal));
+        if (!valueArgumentContexts.isEmpty()) {
+            this.currentIndentLevel++;
+            this.appendNewLinesAndIndent(text, 1);
+            final KotlinParser.ValueArgumentContext firstValueArgumentContext = valueArgumentContexts.get(0);
+            text.append(this.visit(firstValueArgumentContext));
+            for (int index = 1; index < valueArgumentContexts.size(); index++) {
+                // (COMMA valueArgument)*
+                final TerminalNode commaTerminal = commaTerminals.get(index - 1);
+                final KotlinParser.ValueArgumentContext valueArgumentContext = valueArgumentContexts.get(index);
+                text.append(this.visit(commaTerminal));
+                this.appendNewLinesAndIndent(text, 1);
+                text.append(this.visit(valueArgumentContext));
+            }
+        }
+        // (NL* COMMA)?
+        if (!valueArgumentContexts.isEmpty() && valueArgumentContexts.size() == commaTerminals.size()) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitValueArguments -> (NL* COMMA)?");
+        }
+        if (!valueArgumentContexts.isEmpty()) {
+            this.currentIndentLevel--;
+            this.appendNewLinesAndIndent(text, 1);
+        }
+        text.append(this.visit(rparenTerminal));
+        return text.toString();
+    }
+
+    /**
+     * Similar to {@link KotlinVisitor#visitValueArgumentsWithIndentation(KotlinParser.ValueArgumentsContext)}.
+     * The only different is that we assume the parameters are NOT nested.
+     * In such a case, we don't want to indent them.
+     * @param context As is.
+     * @return Formatted text with the assumption that the parameters are NOT nested.
+     */
+    private String visitValueArgumentsWithoutIndentation(final KotlinParser.ValueArgumentsContext context) {
         final TerminalNode lparenTerminal = context.LPAREN();
         final List<KotlinParser.ValueArgumentContext> valueArgumentContexts = context.valueArgument();
         final List<TerminalNode> commaTerminals = context.COMMA();
@@ -2458,6 +2533,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Enter `{}` text: {}", ruleName, tree.getText());
         }
+        this.ruleVisitCounts.putIfAbsent(ruleName, 0);
+        this.ruleVisitCounts.computeIfPresent(ruleName, (ignored, currentCount) -> currentCount + 1);
         return tree.accept(this);
     }
 

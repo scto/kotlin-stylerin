@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatComposition() {
+        this.compare("composition-before.kt", "composition-after.kt");
+    }
+
+    @Test
     void shouldFormatTypeCast() {
         this.compare("type-cast-before.kt", "type-cast-after.kt");
     }
