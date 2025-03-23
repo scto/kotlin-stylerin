@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatMethodChain() {
+        this.compare("method-chain-before.kt", "method-chain-after.kt");
+    }
+
+    @Test
     void shouldFormatComposition() {
         this.compare("composition-before.kt", "composition-after.kt");
     }

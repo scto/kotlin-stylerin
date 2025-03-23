@@ -31,6 +31,16 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
 
     private int currentIndentLevel;
 
+    /**
+     * We will use this for formatting the method chain.
+     */
+    private int currentMethodCallCount;
+
+    /**
+     * It's to check if we are currently chaining methods.
+     */
+    private boolean memberAccessing;
+
     @Override
     public String visitKotlinFile(final KotlinParser.KotlinFileContext context) {
         final KotlinParser.PreambleContext preamble = context.preamble();
@@ -864,10 +874,14 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.DeclarationContext declarationContext = context.declaration();
         final KotlinParser.BlockLevelExpressionContext blockLevelExpressionContext = context.blockLevelExpression();
         final StringBuilder text = new StringBuilder();
+        this.currentMethodCallCount = 0;
         if (declarationContext != null) {
             text.append(this.visit(declarationContext));
         } else if (blockLevelExpressionContext != null) {
             text.append(this.visit(blockLevelExpressionContext));
+        }
+        if (this.currentMethodCallCount > 1) {
+            this.currentIndentLevel--;
         }
         return text.toString();
     }
@@ -1600,8 +1614,16 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (arrayAccessContext != null) {
             text.append(this.visit(arrayAccessContext));
         } else if (memberAccessOperatorContext != null) {
+            if (this.currentMethodCallCount == 1) {
+                this.currentIndentLevel++;
+                this.appendNewLinesAndIndent(text, 1);
+            } else if (this.currentMethodCallCount > 1) {
+                this.appendNewLinesAndIndent(text, 1);
+            }
+            this.memberAccessing = true;
             text.append(this.visit(memberAccessOperatorContext))
                 .append(this.visit(postfixUnaryExpressionContext));
+            this.memberAccessing = false;
         }
         return text.toString();
     }
@@ -1651,6 +1673,9 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.ValueArgumentsContext valueArgumentsContext = context.valueArguments();
         final List<KotlinParser.AnnotatedLambdaContext> annotatedLambdaContexts = context.annotatedLambda();
         final StringBuilder text = new StringBuilder();
+        if (this.memberAccessing) {
+            this.currentMethodCallCount++;
+        }
         if (typeArgumentsContext != null) {
             // typeArguments valueArguments? annotatedLambda*
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitCallSuffix -> typeArguments valueArguments? annotatedLambda*");
@@ -1670,7 +1695,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
                 final KotlinParser.AnnotatedLambdaContext annotatedLambdaContext = annotatedLambdaContexts.get(0);
                 text.append(' ')
                     .append(this.visit(annotatedLambdaContext));
-            } else if (annotatedLambdaContexts.size() > 1) {
+            } else {
                 throw new UnsupportedOperationException("The following parsing path is not supported yet: visitCallSuffix -> annotatedLambda+");
             }
         }
@@ -1725,13 +1750,19 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitValueArguments(final KotlinParser.ValueArgumentsContext context) {
         final StringBuilder text = new StringBuilder();
+        final Map<String, Integer> ruleVisitCountsCopy = new HashMap<>(this.ruleVisitCounts);
+        final int currentMethodCallCountCopy = this.currentMethodCallCount;
+        final int currentIndentLevelCopy = this.currentIndentLevel;
         final int visitValueArgumentsCountBefore = this.ruleVisitCounts.getOrDefault(KotlinParser.ValueArgumentsContext.class.getSimpleName(), 0);
-        final String withIndentation = this.visitValueArgumentsWithIndentation(context);
+        final String withoutIndentation = this.visitValueArgumentsWithoutIndentation(context);
         final int visitValueArgumentsCountAfter = this.ruleVisitCounts.getOrDefault(KotlinParser.ValueArgumentsContext.class.getSimpleName(), 0);
-        if (visitValueArgumentsCountBefore < visitValueArgumentsCountAfter) {
-            text.append(withIndentation);
+        if (visitValueArgumentsCountBefore == visitValueArgumentsCountAfter) {
+            text.append(withoutIndentation);
         } else {
-            text.append(this.visitValueArgumentsWithoutIndentation(context));
+            this.ruleVisitCounts = ruleVisitCountsCopy;
+            this.currentMethodCallCount = currentMethodCallCountCopy;
+            this.currentIndentLevel = currentIndentLevelCopy;
+            text.append(this.visitValueArgumentsWithIndentation(context));
         }
         return text.toString();
     }
