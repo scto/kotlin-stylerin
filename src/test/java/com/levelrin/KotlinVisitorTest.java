@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatMap() {
+        this.compare("map-before.kt", "map-after.kt");
+    }
+
+    @Test
     void shouldFormatMethodChain() {
         this.compare("method-chain-before.kt", "method-chain-after.kt");
     }

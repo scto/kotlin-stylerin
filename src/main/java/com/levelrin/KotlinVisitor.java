@@ -1749,7 +1749,12 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
 
     @Override
     public String visitValueArguments(final KotlinParser.ValueArgumentsContext context) {
+        final List<TerminalNode> commaTerminals = context.COMMA();
         final StringBuilder text = new StringBuilder();
+        if (commaTerminals.size() > 2) {
+            text.append(this.visitValueArgumentsWithIndentation(context));
+            return text.toString();
+        }
         final Map<String, Integer> ruleVisitCountsCopy = new HashMap<>(this.ruleVisitCounts);
         final int currentMethodCallCountCopy = this.currentMethodCallCount;
         final int currentIndentLevelCopy = this.currentIndentLevel;
@@ -1797,7 +1802,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         }
         // (NL* COMMA)?
         if (!valueArgumentContexts.isEmpty() && valueArgumentContexts.size() == commaTerminals.size()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitValueArguments -> (NL* COMMA)?");
+            final TerminalNode commaTerminal = commaTerminals.get(commaTerminals.size() - 1);
+            text.append(this.visit(commaTerminal));
         }
         if (!valueArgumentContexts.isEmpty()) {
             this.currentIndentLevel--;
@@ -1835,7 +1841,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         }
         // (NL* COMMA)?
         if (!valueArgumentContexts.isEmpty() && valueArgumentContexts.size() == commaTerminals.size()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitValueArguments -> (NL* COMMA)?");
+            final TerminalNode commaTerminal = commaTerminals.get(commaTerminals.size() - 1);
+            text.append(this.visit(commaTerminal));
         }
         text.append(this.visit(rparenTerminal));
         return text.toString();
