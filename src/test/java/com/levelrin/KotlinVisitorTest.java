@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatDestructure() {
+        this.compare("destructure-before.kt", "destructure-after.kt");
+    }
+
+    @Test
     void shouldFormatMap() {
         this.compare("map-before.kt", "map-after.kt");
     }

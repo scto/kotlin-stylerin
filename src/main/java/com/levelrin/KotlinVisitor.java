@@ -947,7 +947,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         }
         // NL* (multiVariableDeclaration | variableDeclaration)
         if (multiVariableDeclarationContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> multiVariableDeclaration");
+            text.append(this.visit(multiVariableDeclarationContext));
         } else if (variableDeclarationContext != null) {
             text.append(this.visit(variableDeclarationContext));
         }
@@ -973,6 +973,27 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (setterContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> setter");
         }
+        return text.toString();
+    }
+
+    @Override
+    public String visitMultiVariableDeclaration(final KotlinParser.MultiVariableDeclarationContext context) {
+        final TerminalNode lparenTerminal = context.LPAREN();
+        final List<KotlinParser.VariableDeclarationContext> variableDeclarationContexts = context.variableDeclaration();
+        final List<TerminalNode> commaTerminals = context.COMMA();
+        final TerminalNode rparenTerminal = context.RPAREN();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(lparenTerminal));
+        final KotlinParser.VariableDeclarationContext firstVariableDeclarationContext = variableDeclarationContexts.get(0);
+        text.append(this.visit(firstVariableDeclarationContext));
+        for (int index = 0; index < commaTerminals.size(); index++) {
+            final TerminalNode commaTerminal = commaTerminals.get(index);
+            final KotlinParser.VariableDeclarationContext variableDeclarationContext = variableDeclarationContexts.get(index + 1);
+            text.append(this.visit(commaTerminal))
+                .append(' ')
+                .append(this.visit(variableDeclarationContext));
+        }
+        text.append(this.visit(rparenTerminal));
         return text.toString();
     }
 
