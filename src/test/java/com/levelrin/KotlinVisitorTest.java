@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatNamedParameters() {
+        this.compare("named-params-before.kt", "named-params-after.kt");
+    }
+
+    @Test
     void shouldFormatDestructure() {
         this.compare("destructure-before.kt", "destructure-after.kt");
     }

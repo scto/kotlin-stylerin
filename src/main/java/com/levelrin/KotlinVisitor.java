@@ -1780,15 +1780,19 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final int currentMethodCallCountCopy = this.currentMethodCallCount;
         final int currentIndentLevelCopy = this.currentIndentLevel;
         final int visitValueArgumentsCountBefore = this.ruleVisitCounts.getOrDefault(KotlinParser.ValueArgumentsContext.class.getSimpleName(), 0);
+        final int visitNamedParamCountBefore = this.ruleVisitCounts.getOrDefault(KotlinParser.NamedParamContext.class.getSimpleName(), 0);
         final String withoutIndentation = this.visitValueArgumentsWithoutIndentation(context);
         final int visitValueArgumentsCountAfter = this.ruleVisitCounts.getOrDefault(KotlinParser.ValueArgumentsContext.class.getSimpleName(), 0);
-        if (visitValueArgumentsCountBefore == visitValueArgumentsCountAfter) {
-            text.append(withoutIndentation);
-        } else {
+        final int visitNamedParamCountAfter = this.ruleVisitCounts.getOrDefault(KotlinParser.NamedParamContext.class.getSimpleName(), 0);
+        final boolean nestedArgs = visitValueArgumentsCountBefore < visitValueArgumentsCountAfter;
+        final boolean namedParams = visitNamedParamCountBefore < visitNamedParamCountAfter;
+        if (nestedArgs || namedParams) {
             this.ruleVisitCounts = ruleVisitCountsCopy;
             this.currentMethodCallCount = currentMethodCallCountCopy;
             this.currentIndentLevel = currentIndentLevelCopy;
             text.append(this.visitValueArgumentsWithIndentation(context));
+        } else {
+            text.append(withoutIndentation);
         }
         return text.toString();
     }
@@ -1871,19 +1875,29 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
 
     @Override
     public String visitValueArgument(final KotlinParser.ValueArgumentContext context) {
-        final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
-        // todo: use `assignmentTerminal` with tests.
-        final TerminalNode assignmentTerminal = context.ASSIGNMENT();
+        final KotlinParser.NamedParamContext namedParamContext = context.namedParam();
         final TerminalNode multTerminal = context.MULT();
         final KotlinParser.ExpressionContext expressionContext = context.expression();
         final StringBuilder text = new StringBuilder();
-        if (simpleIdentifierContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitValueArgument -> simpleIdentifier");
+        if (namedParamContext != null) {
+            text.append(this.visit(namedParamContext));
         }
         if (multTerminal != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitValueArgument -> mult");
         }
         text.append(this.visit(expressionContext));
+        return text.toString();
+    }
+
+    @Override
+    public String visitNamedParam(final KotlinParser.NamedParamContext context) {
+        final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
+        final TerminalNode assignmentTerminal = context.ASSIGNMENT();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(simpleIdentifierContext))
+            .append(' ')
+            .append(this.visit(assignmentTerminal))
+            .append(' ');
         return text.toString();
     }
 

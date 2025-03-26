@@ -435,7 +435,13 @@ typeProjectionModifierList
     ;
 
 valueArgument
-    : (simpleIdentifier NL* ASSIGNMENT NL*)? MULT? NL* expression
+    // Original: (simpleIdentifier NL* ASSIGNMENT NL*)? MULT? NL* expression
+    : namedParam? MULT? NL* expression
+    ;
+
+// This is a rule that we created for easier parsing.
+namedParam
+    : simpleIdentifier NL* ASSIGNMENT NL*
     ;
 
 literalConstant
