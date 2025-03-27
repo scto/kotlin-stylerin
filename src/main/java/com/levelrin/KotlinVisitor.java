@@ -880,9 +880,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (blockLevelExpressionContext != null) {
             text.append(this.visit(blockLevelExpressionContext));
         }
-        if (this.currentMethodCallCount > 1) {
-            this.currentIndentLevel--;
-        }
         return text.toString();
     }
 
@@ -1635,8 +1632,10 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (arrayAccessContext != null) {
             text.append(this.visit(arrayAccessContext));
         } else if (memberAccessOperatorContext != null) {
+            boolean indentedByMethodChain = false;
             if (this.currentMethodCallCount == 1) {
                 this.currentIndentLevel++;
+                indentedByMethodChain = true;
                 this.appendNewLinesAndIndent(text, 1);
             } else if (this.currentMethodCallCount > 1) {
                 this.appendNewLinesAndIndent(text, 1);
@@ -1645,6 +1644,9 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(memberAccessOperatorContext))
                 .append(this.visit(postfixUnaryExpressionContext));
             this.memberAccessing = false;
+            if (indentedByMethodChain) {
+                this.currentIndentLevel--;
+            }
         }
         return text.toString();
     }
@@ -1746,7 +1748,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.StatementsContext statementsContext = context.statements();
         final TerminalNode rcurlTerminal = context.RCURL();
         final KotlinParser.LambdaParametersContext lambdaParametersContext = context.lambdaParameters();
-        // todo: use `arrowTerminal` with tests.
         final TerminalNode arrowTerminal = context.ARROW();
         final StringBuilder text = new StringBuilder();
         if (!annotationsContexts.isEmpty()) {
@@ -1763,7 +1764,55 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(rcurlTerminal));
         } else {
             // LCURL NL* lambdaParameters NL* ARROW NL* statements NL* RCURL
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionLiteral-> LCURL NL* lambdaParameters NL* ARROW NL* statements NL* RCURL");
+            text.append(this.visit(lcurlTerminal))
+                .append(' ')
+                .append(this.visit(lambdaParametersContext))
+                .append(' ')
+                .append(this.visit(arrowTerminal));
+            this.currentIndentLevel++;
+            this.appendNewLinesAndIndent(text, 1);
+            text.append(this.visit(statementsContext));
+            this.currentIndentLevel--;
+            this.appendNewLinesAndIndent(text, 1);
+            text.append(this.visit(rcurlTerminal));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitLambdaParameters(final KotlinParser.LambdaParametersContext context) {
+        final List<KotlinParser.LambdaParameterContext> lambdaParameterContexts = context.lambdaParameter();
+        final List<TerminalNode> commaTerminals = context.COMMA();
+        final StringBuilder text = new StringBuilder();
+        if (!lambdaParameterContexts.isEmpty()) {
+            final KotlinParser.LambdaParameterContext firstLambdaParameterContext = lambdaParameterContexts.get(0);
+            text.append(this.visit(firstLambdaParameterContext));
+            for (int index = 0; index < commaTerminals.size(); index++) {
+                final TerminalNode commaTerminal = commaTerminals.get(index);
+                final KotlinParser.LambdaParameterContext lambdaParameterContext = lambdaParameterContexts.get(index + 1);
+                text.append(this.visit(commaTerminal))
+                    .append(' ')
+                    .append(this.visit(lambdaParameterContext));
+            }
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitLambdaParameter(final KotlinParser.LambdaParameterContext context) {
+        final KotlinParser.VariableDeclarationContext variableDeclarationContext = context.variableDeclaration();
+        final KotlinParser.MultiVariableDeclarationContext multiVariableDeclarationContext = context.multiVariableDeclaration();
+        final TerminalNode colonTerminal = context.COLON();
+        // todo: use `typeContext` with tests.
+        final KotlinParser.TypeContext typeContext = context.type();
+        final StringBuilder text = new StringBuilder();
+        if (variableDeclarationContext != null) {
+            text.append(this.visit(variableDeclarationContext));
+        } else if (multiVariableDeclarationContext != null) {
+            text.append(this.visit(multiVariableDeclarationContext));
+            if (colonTerminal != null) {
+                throw new UnsupportedOperationException("The following parsing path is not supported yet: visitLambdaParameter -> colon");
+            }
         }
         return text.toString();
     }

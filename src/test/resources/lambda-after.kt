@@ -11,4 +11,11 @@ fun main() {
     println(d)
     val e = 2.intPlus(3)
     println(e)
+    "hello world".split(" ")
+        .forEach { word ->
+            word.withIndex()
+                .forEach { (i, c) ->
+                    println("Char $i: $c")
+                }
+        }
 }
