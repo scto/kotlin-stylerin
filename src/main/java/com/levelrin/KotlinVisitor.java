@@ -1507,8 +1507,29 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         final KotlinParser.TypeRHSContext firstTypeRHSContext = typeRHSContexts.get(0);
         text.append(this.visit(firstTypeRHSContext));
-        if (!multiplicativeOperationContexts.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitMultiplicativeExpression -> multiplicativeOperation");
+        for (int index = 0; index < multiplicativeOperationContexts.size(); index++) {
+            final KotlinParser.MultiplicativeOperationContext multiplicativeOperationContext = multiplicativeOperationContexts.get(index);
+            final KotlinParser.TypeRHSContext typeRHSContext = typeRHSContexts.get(index + 1);
+            text.append(' ')
+                .append(this.visit(multiplicativeOperationContext))
+                .append(' ')
+                .append(this.visit(typeRHSContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitMultiplicativeOperation(final KotlinParser.MultiplicativeOperationContext context) {
+        final TerminalNode multTerminal = context.MULT();
+        final TerminalNode divTerminal = context.DIV();
+        final TerminalNode modTerminal = context.MOD();
+        final StringBuilder text = new StringBuilder();
+        if (multTerminal != null) {
+            text.append(this.visit(multTerminal));
+        } else if (divTerminal != null) {
+            text.append(this.visit(divTerminal));
+        } else if (modTerminal != null) {
+            text.append(this.visit(modTerminal));
         }
         return text.toString();
     }
@@ -2486,7 +2507,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
         final KotlinParser.ParameterContext parameterContext = context.parameter();
         final TerminalNode assignmentTerminal = context.ASSIGNMENT();
-        // todo: use `expressionContext` with tests.
         final KotlinParser.ExpressionContext expressionContext = context.expression();
         final StringBuilder text = new StringBuilder();
         if (modifierListContext != null) {
@@ -2494,7 +2514,10 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         }
         text.append(this.visit(parameterContext));
         if (assignmentTerminal != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionValueParameter -> assignment");
+            text.append(' ')
+                .append(this.visit(assignmentTerminal))
+                .append(' ')
+                .append(this.visit(expressionContext));
         }
         return text.toString();
     }

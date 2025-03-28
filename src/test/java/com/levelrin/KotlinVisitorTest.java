@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatTailRecursiveFunctions() {
+        this.compare("tailrec-before.kt", "tailrec-after.kt");
+    }
+
+    @Test
     void shouldFormatNamedParameters() {
         this.compare("named-params-before.kt", "named-params-after.kt");
     }
