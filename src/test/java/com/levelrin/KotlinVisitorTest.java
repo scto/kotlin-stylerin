@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatGeneric() {
+        this.compare("generic-before.kt", "generic-after.kt");
+    }
+
+    @Test
     void shouldFormatTailRecursiveFunctions() {
         this.compare("tailrec-before.kt", "tailrec-after.kt");
     }

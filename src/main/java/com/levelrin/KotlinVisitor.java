@@ -786,7 +786,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(firstTypeOfFuncDeclarationContext));
         }
         if (typeParametersContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionDeclaration -> typeParameters");
+            text.append(this.visit(typeParametersContext))
+                .append(' ');
         }
         if (receiverTypeContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionDeclaration -> receiverType");
@@ -1722,7 +1723,13 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         }
         if (typeArgumentsContext != null) {
             // typeArguments valueArguments? annotatedLambda*
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitCallSuffix -> typeArguments valueArguments? annotatedLambda*");
+            text.append(this.visit(typeArgumentsContext));
+            if (valueArgumentsContext != null) {
+                text.append(this.visit(valueArgumentsContext));
+            }
+            if (!annotatedLambdaContexts.isEmpty()) {
+                throw new UnsupportedOperationException("The following parsing path is not supported yet: visitCallSuffix -> annotatedLambda");
+            }
         } else if (valueArgumentsContext != null) {
             // valueArguments annotatedLambda*
             text.append(this.visit(valueArgumentsContext));
