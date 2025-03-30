@@ -197,12 +197,29 @@ companionObject
     ;
 
 propertyDeclaration
+    // Original:
+    // modifierList? (VAL | VAR) (NL* typeParameters)? (NL* type NL* DOT)? (
+    //     NL* (multiVariableDeclaration | variableDeclaration)
+    // ) (NL* typeConstraints)? (NL* (BY | ASSIGNMENT) NL* expression)? (
+    //     NL* getter (semi setter)?
+    //     | NL* setter (semi getter)?
+    // )?
     : modifierList? (VAL | VAR) (NL* typeParameters)? (NL* type NL* DOT)? (
         NL* (multiVariableDeclaration | variableDeclaration)
     ) (NL* typeConstraints)? (NL* (BY | ASSIGNMENT) NL* expression)? (
-        NL* getter (semi setter)?
-        | NL* setter (semi getter)?
+        NL* getterPartOfPropertyDeclaration
+        | NL* setterPartOfPropertyDeclaration
     )?
+    ;
+
+// This is a rule that we created for easier parsing.
+getterPartOfPropertyDeclaration
+    : getter (semi setter)?
+    ;
+
+// This is a rule that we created for easier parsing.
+setterPartOfPropertyDeclaration
+    : setter (semi getter)?
     ;
 
 multiVariableDeclaration

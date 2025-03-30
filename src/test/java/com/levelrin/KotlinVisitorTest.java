@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatGettersAndSetters() {
+        this.compare("getters-setters-before.kt", "getters-setters-after.kt");
+    }
+
+    @Test
     void shouldFormatGeneric() {
         this.compare("generic-before.kt", "generic-after.kt");
     }

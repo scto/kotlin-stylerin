@@ -922,8 +922,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final TerminalNode byTerminal = context.BY();
         final TerminalNode assignmentTerminal = context.ASSIGNMENT();
         final KotlinParser.ExpressionContext expressionContext = context.expression();
-        final KotlinParser.GetterContext getterContext = context.getter();
-        final KotlinParser.SetterContext setterContext = context.setter();
+        final KotlinParser.GetterPartOfPropertyDeclarationContext getterPartOfPropertyDeclarationContext = context.getterPartOfPropertyDeclaration();
+        final KotlinParser.SetterPartOfPropertyDeclarationContext setterPartOfPropertyDeclarationContext = context.setterPartOfPropertyDeclaration();
         final StringBuilder text = new StringBuilder();
         if (modifierListContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> modifierList");
@@ -964,12 +964,116 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(' ')
                 .append(this.visit(expressionContext));
         }
-        // (NL* getter (semi setter)? | NL* setter (semi getter)?)?
-        if (getterContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> getter");
+        if (getterPartOfPropertyDeclarationContext != null) {
+            this.currentIndentLevel++;
+            this.appendNewLinesAndIndent(text, 1);
+            text.append(this.visit(getterPartOfPropertyDeclarationContext));
+            this.currentIndentLevel--;
+        } else if (setterPartOfPropertyDeclarationContext != null) {
+            this.currentIndentLevel++;
+            this.appendNewLinesAndIndent(text, 1);
+            text.append(this.visit(setterPartOfPropertyDeclarationContext));
+            this.currentIndentLevel--;
         }
+        return text.toString();
+    }
+
+    @Override
+    public String visitGetterPartOfPropertyDeclaration(final KotlinParser.GetterPartOfPropertyDeclarationContext context) {
+        final KotlinParser.GetterContext getterContext = context.getter();
+        final KotlinParser.SetterContext setterContext = context.setter();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(getterContext));
         if (setterContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> setter");
+            this.appendNewLinesAndIndent(text, 1);
+            text.append(this.visit(setterContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitSetterPartOfPropertyDeclaration(final KotlinParser.SetterPartOfPropertyDeclarationContext context) {
+        final KotlinParser.SetterContext setterContext = context.setter();
+        final KotlinParser.GetterContext getterContext = context.getter();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(setterContext));
+        if (getterContext != null) {
+            this.appendNewLinesAndIndent(text, 1);
+            text.append(this.visit(getterContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitGetter(final KotlinParser.GetterContext context) {
+        final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
+        final TerminalNode getterTerminal = context.GETTER();
+        final TerminalNode lparenTerminal = context.LPAREN();
+        final TerminalNode rparenTerminal = context.RPAREN();
+        final TerminalNode colonTerminal = context.COLON();
+        final KotlinParser.TypeContext typeContext = context.type();
+        final KotlinParser.BlockContext blockContext = context.block();
+        final TerminalNode assignmentTerminal = context.ASSIGNMENT();
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final StringBuilder text = new StringBuilder();
+        if (modifierListContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitGetter -> modifierList");
+        }
+        text.append(this.visit(getterTerminal));
+        if (lparenTerminal != null) {
+            // LPAREN RPAREN (NL* COLON NL* type)? NL* (block | ASSIGNMENT NL* expression)
+            text.append(this.visit(lparenTerminal))
+                .append(this.visit(rparenTerminal));
+            if (colonTerminal != null) {
+                text.append(this.visit(colonTerminal))
+                    .append(' ')
+                    .append(this.visit(typeContext));
+            }
+            text.append(' ');
+            if (blockContext != null) {
+                text.append(this.visit(blockContext));
+            } else if (assignmentTerminal != null) {
+                text.append(this.visit(assignmentTerminal))
+                    .append(' ')
+                    .append(this.visit(expressionContext));
+            }
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitSetter(final KotlinParser.SetterContext context) {
+        final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
+        final TerminalNode setterTerminal = context.SETTER();
+        final TerminalNode lparenTerminal = context.LPAREN();
+        final List<KotlinParser.AnnotationsContext> annotationsContexts = context.annotations();
+        final List<KotlinParser.ParameterModifierContext> parameterModifierContexts = context.parameterModifier();
+        final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
+        final KotlinParser.ParameterContext parameterContext = context.parameter();
+        final TerminalNode rparenTerminal = context.RPAREN();
+        final KotlinParser.FunctionBodyContext functionBodyContext = context.functionBody();
+        final StringBuilder text = new StringBuilder();
+        if (modifierListContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSetter -> modifierList");
+        }
+        text.append(this.visit(setterTerminal));
+        if (lparenTerminal != null) {
+            // LPAREN (annotations | parameterModifier)* (simpleIdentifier | parameter) RPAREN NL* functionBody
+            text.append(this.visit(lparenTerminal));
+            if (!annotationsContexts.isEmpty()) {
+                throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSetter -> annotations");
+            }
+            if (!parameterModifierContexts.isEmpty()) {
+                throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSetter -> parameterModifier");
+            }
+            if (simpleIdentifierContext != null) {
+                text.append(this.visit(simpleIdentifierContext));
+            } else if (parameterContext != null) {
+                text.append(this.visit(parameterContext));
+            }
+            text.append(this.visit(rparenTerminal))
+                .append(' ')
+                .append(this.visit(functionBodyContext));
         }
         return text.toString();
     }
