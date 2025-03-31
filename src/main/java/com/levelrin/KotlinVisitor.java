@@ -5,6 +5,8 @@ import com.levelrin.antlr.generated.KotlinParserBaseVisitor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.Token;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.RuleNode;
 import org.antlr.v4.runtime.tree.TerminalNode;
@@ -40,6 +42,20 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
      * It's to check if we are currently chaining methods.
      */
     private boolean memberAccessing;
+
+    /**
+     * For getting comments from the hidden channel.
+     */
+    private final CommonTokenStream tokens;
+
+    /**
+     * Constructor.
+     *
+     * @param tokens See {@link KotlinVisitor#tokens}.
+     */
+    public KotlinVisitor(final CommonTokenStream tokens) {
+        this.tokens = tokens;
+    }
 
     @Override
     public String visitKotlinFile(final KotlinParser.KotlinFileContext context) {
@@ -2796,7 +2812,28 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
 
     @Override
     public String visitTerminal(final TerminalNode node) {
-        return node.getText();
+        int tokenIndex = node.getSymbol().getTokenIndex();
+        // Since we skip NL and SEMICOLON tokens, we need to look back
+        // and get the comment from the initially skipped token index.
+        for (int index = tokenIndex - 1; index >= 0; index--) {
+            final Token token = this.tokens.get(index);
+            // The token type 5 is NL and 26 is SEMICOLON.
+            // Note that we may have to update the type number if we modify the KotlinLexer.
+            if (token.getType() != 5 && token.getType() != 26) {
+                tokenIndex = index + 1;
+                break;
+            }
+        }
+        final List<Token> comments = this.tokens.getHiddenTokensToLeft(tokenIndex);
+        final StringBuilder text = new StringBuilder();
+        if (comments != null) {
+            for (final Token comment : comments) {
+                text.append(comment.getText());
+                this.appendNewLinesAndIndent(text, 1);
+            }
+        }
+        text.append(node.getText());
+        return text.toString();
     }
 
     @Override

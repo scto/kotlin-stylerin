@@ -33,7 +33,7 @@ final class KotlinVisitorTest {
             final CommonTokenStream tokens = new CommonTokenStream(lexer);
             final KotlinParser parser = new KotlinParser(tokens);
             final ParseTree tree = parser.kotlinFile();
-            final KotlinVisitor visitor = new KotlinVisitor();
+            final KotlinVisitor visitor = new KotlinVisitor(tokens);
             final String result = visitor.visit(tree);
             final Path afterPath = Paths.get(ClassLoader.getSystemResource(after).toURI());
             final String expectedText = Files.readString(afterPath, StandardCharsets.UTF_8);
@@ -52,6 +52,11 @@ final class KotlinVisitorTest {
                 ex
             );
         }
+    }
+
+    @Test
+    void shouldFormatComments() {
+        this.compare("comment-before.kt", "comment-after.kt");
     }
 
     @Test
