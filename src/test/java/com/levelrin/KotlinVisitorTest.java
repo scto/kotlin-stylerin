@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatInitializers() {
+        this.compare("init-before.kt", "init-after.kt");
+    }
+
+    @Test
     void shouldFormatComments() {
         this.compare("comment-before.kt", "comment-after.kt");
     }

@@ -694,12 +694,23 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (propertyDeclarationContext != null) {
             text.append(this.visit(propertyDeclarationContext));
         } else if (anonymousInitializerContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassMemberDeclaration -> anonymousInitializer");
+            text.append(this.visit(anonymousInitializerContext));
         } else if (secondaryConstructorContext != null) {
             text.append(this.visit(secondaryConstructorContext));
         } else if (typeAliasContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitClassMemberDeclaration -> typeAlias");
         }
+        return text.toString();
+    }
+
+    @Override
+    public String visitAnonymousInitializer(final KotlinParser.AnonymousInitializerContext context) {
+        final TerminalNode initTerminal = context.INIT();
+        final KotlinParser.BlockContext blockContext = context.block();
+        final StringBuilder text = new StringBuilder();
+        text.append(initTerminal)
+            .append(' ')
+            .append(this.visit(blockContext));
         return text.toString();
     }
 
