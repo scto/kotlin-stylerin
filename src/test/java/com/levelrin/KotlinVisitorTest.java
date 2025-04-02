@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatAnnotations() {
+        this.compare("annotation-before.kt", "annotation-after.kt");
+    }
+
+    @Test
     void shouldFormatInitializers() {
         this.compare("init-before.kt", "init-after.kt");
     }

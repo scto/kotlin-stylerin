@@ -257,8 +257,15 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.EnumClassBodyContext enumClassBodyContext = context.enumClassBody();
         final StringBuilder text = new StringBuilder();
         if (modifierListContext != null) {
-            text.append(this.visit(modifierListContext))
-                .append(' ');
+            final int visitAnnotationsCountBefore = this.ruleVisitCounts.getOrDefault(KotlinParser.AnnotationsContext.class.getSimpleName(), 0);
+            final String modifierListText = this.visit(modifierListContext);
+            final int visitAnnotationsCountAfter = this.ruleVisitCounts.getOrDefault(KotlinParser.AnnotationsContext.class.getSimpleName(), 0);
+            text.append(modifierListText);
+            if (visitAnnotationsCountBefore < visitAnnotationsCountAfter) {
+                this.appendNewLinesAndIndent(text, 1);
+            } else {
+                text.append(' ');
+            }
         }
         if (classTerminal != null) {
             text.append(this.visit(classTerminal));
@@ -500,9 +507,16 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         for (int index = 0; index < annotationsOrModifierContexts.size(); index++) {
             final KotlinParser.AnnotationsOrModifierContext annotationsOrModifierContext = annotationsOrModifierContexts.get(index);
-            text.append(this.visit(annotationsOrModifierContext));
+            final int visitAnnotationsCountBefore = this.ruleVisitCounts.getOrDefault(KotlinParser.AnnotationsContext.class.getSimpleName(), 0);
+            final String annotationsOrModifierText = this.visit(annotationsOrModifierContext);
+            final int visitAnnotationsCountAfter = this.ruleVisitCounts.getOrDefault(KotlinParser.AnnotationsContext.class.getSimpleName(), 0);
+            text.append(annotationsOrModifierText);
             if (index < annotationsOrModifierContexts.size() - 1) {
-                text.append(' ');
+                if (visitAnnotationsCountBefore < visitAnnotationsCountAfter) {
+                    this.appendNewLinesAndIndent(text, 1);
+                } else {
+                    text.append(' ');
+                }
             }
         }
         return text.toString();
@@ -514,9 +528,74 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.ModifierContext modifierContext = context.modifier();
         final StringBuilder text = new StringBuilder();
         if (annotationsContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAnnotationsOrModifier -> annotations");
+            text.append(this.visit(annotationsContext));
         } else if (modifierContext != null) {
             text.append(this.visit(modifierContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitAnnotations(final KotlinParser.AnnotationsContext context) {
+        final KotlinParser.AnnotationContext annotationContext = context.annotation();
+        final KotlinParser.AnnotationListContext annotationListContext = context.annotationList();
+        final StringBuilder text = new StringBuilder();
+        if (annotationContext != null) {
+            text.append(this.visit(annotationContext));
+        } else if (annotationListContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAnnotations -> annotationList");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitAnnotationList(final KotlinParser.AnnotationListContext context) {
+        final KotlinParser.AnnotationUseSiteTargetContext annotationUseSiteTargetContext = context.annotationUseSiteTarget();
+        // todo: use `colonTerminal`, `lsqaureTerminal`, `unescapedAnnotationContexts`, and `rsqaureTerminal` with tests.
+        final TerminalNode colonTerminal = context.COLON();
+        final TerminalNode lsqaureTerminal = context.LSQUARE();
+        final List<KotlinParser.UnescapedAnnotationContext> unescapedAnnotationContexts = context.unescapedAnnotation();
+        final TerminalNode rsqaureTerminal = context.RSQUARE();
+        final TerminalNode atTerminal = context.AT();
+        final StringBuilder text = new StringBuilder();
+        if (annotationUseSiteTargetContext != null) {
+            // annotationUseSiteTarget COLON LSQUARE unescapedAnnotation+ RSQUARE
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAnnotationList -> annotationUseSiteTarget");
+        } else if (atTerminal != null) {
+            // AT LSQUARE unescapedAnnotation+ RSQUARE
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAnnotationList -> at");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitAnnotation(final KotlinParser.AnnotationContext context) {
+        final KotlinParser.AnnotationUseSiteTargetContext annotationUseSiteTargetContext = context.annotationUseSiteTarget();
+        // todo: use `colonTerminal` and `unescapedAnnotationContext` with tests.
+        final TerminalNode colonTerminal = context.COLON();
+        final KotlinParser.UnescapedAnnotationContext unescapedAnnotationContext = context.unescapedAnnotation();
+        final TerminalNode labelReferenceTerminal = context.LabelReference();
+        final List<TerminalNode> dotTerminals = context.DOT();
+        // todo: use `simpleIdentifierContexts` with tests.
+        final List<KotlinParser.SimpleIdentifierContext> simpleIdentifierContexts = context.simpleIdentifier();
+        final KotlinParser.TypeArgumentsContext typeArgumentsContext = context.typeArguments();
+        final KotlinParser.ValueArgumentsContext valueArgumentsContext = context.valueArguments();
+        final StringBuilder text = new StringBuilder();
+        if (annotationUseSiteTargetContext != null) {
+            // annotationUseSiteTarget NL* COLON NL* unescapedAnnotation
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAnnotation -> annotationUseSiteTarget");
+        } else if (labelReferenceTerminal != null) {
+            // LabelReference (NL* DOT NL* simpleIdentifier)* (NL* typeArguments)? (NL* valueArguments)?
+            text.append(this.visit(labelReferenceTerminal));
+            if (!dotTerminals.isEmpty()) {
+                throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAnnotation -> dot");
+            }
+            if (typeArgumentsContext != null) {
+                throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAnnotation -> typeArguments");
+            }
+            if (valueArgumentsContext != null) {
+                text.append(this.visit(valueArgumentsContext));
+            }
         }
         return text.toString();
     }
@@ -804,8 +883,15 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.FunctionBodyContext functionBodyContext = context.functionBody();
         final StringBuilder text = new StringBuilder();
         if (modifierListContext != null) {
-            text.append(this.visit(modifierListContext))
-                .append(' ');
+            final int visitAnnotationsCountBefore = this.ruleVisitCounts.getOrDefault(KotlinParser.AnnotationsContext.class.getSimpleName(), 0);
+            final String modifierListText = this.visit(modifierListContext);
+            final int visitAnnotationsCountAfter = this.ruleVisitCounts.getOrDefault(KotlinParser.AnnotationsContext.class.getSimpleName(), 0);
+            text.append(modifierListText);
+            if (visitAnnotationsCountBefore < visitAnnotationsCountAfter) {
+                this.appendNewLinesAndIndent(text, 1);
+            } else {
+                text.append(' ');
+            }
         }
         text.append(this.visit(funTerminal))
             .append(' ');
@@ -953,7 +1039,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.SetterPartOfPropertyDeclarationContext setterPartOfPropertyDeclarationContext = context.setterPartOfPropertyDeclaration();
         final StringBuilder text = new StringBuilder();
         if (modifierListContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> modifierList");
+            text.append(this.visit(modifierListContext));
+            this.appendNewLinesAndIndent(text, 1);
         }
         if (valTerminal != null) {
             text.append(this.visit(valTerminal));
@@ -2648,7 +2735,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.ExpressionContext expressionContext = context.expression();
         final StringBuilder text = new StringBuilder();
         if (modifierListContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionValueParameter -> modifierList");
+            text.append(this.visit(modifierListContext))
+                .append(' ');
         }
         text.append(this.visit(parameterContext));
         if (assignmentTerminal != null) {
