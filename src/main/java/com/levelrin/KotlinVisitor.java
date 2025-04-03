@@ -1131,7 +1131,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.ExpressionContext expressionContext = context.expression();
         final StringBuilder text = new StringBuilder();
         if (modifierListContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitGetter -> modifierList");
+            text.append(this.visit(modifierListContext));
+            this.appendNewLinesAndIndent(text, 1);
         }
         text.append(this.visit(getterTerminal));
         if (lparenTerminal != null) {
@@ -1168,7 +1169,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.FunctionBodyContext functionBodyContext = context.functionBody();
         final StringBuilder text = new StringBuilder();
         if (modifierListContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSetter -> modifierList");
+            text.append(this.visit(modifierListContext));
+            this.appendNewLinesAndIndent(text, 1);
         }
         text.append(this.visit(setterTerminal));
         if (lparenTerminal != null) {

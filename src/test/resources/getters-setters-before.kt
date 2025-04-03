@@ -1,7 +1,9 @@
 class Animal {
 
     var name: String = ""
+    @Deprecated("Use a different property")
             get()=field
+            @Deprecated("Use a different property")
             set(value){
                     field=  value
             }
