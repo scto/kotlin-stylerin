@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatZip() {
+        this.compare("zip-before.kt", "zip-after.kt");
+    }
+
+    @Test
     void shouldFormatAnnotations() {
         this.compare("annotation-before.kt", "annotation-after.kt");
     }
