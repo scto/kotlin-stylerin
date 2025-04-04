@@ -11,3 +11,17 @@ class Bird : Animal {
     }
 
 }
+
+class Cat : Animal {
+
+    override fun move() {
+        println("Cat running...")
+    }
+
+    companion object {
+
+        const val ID = 0
+
+    }
+
+}

@@ -470,7 +470,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (constructorInvocationContext != null) {
             text.append(this.visit(constructorInvocationContext));
         } else if (userTypeContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitDelegationSpecifier -> userType");
+            text.append(this.visit(userTypeContext));
         } else if (explicitDelegationContext != null) {
             text.append(this.visit(explicitDelegationContext));
         }
@@ -623,7 +623,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (functionModifierContext != null) {
             text.append(this.visit(functionModifierContext));
         } else if (propertyModifierContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitModifier -> propertyModifier");
+            text.append(this.visit(propertyModifierContext));
         } else if (inheritanceModifierContext != null) {
             text.append(this.visit(inheritanceModifierContext));
         } else if (parameterModifierContext != null) {
@@ -631,6 +631,14 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (typeParameterModifierContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitModifier -> typeParameterModifier");
         }
+        return text.toString();
+    }
+
+    @Override
+    public String visitPropertyModifier(final KotlinParser.PropertyModifierContext context) {
+        final TerminalNode constTerminal = context.CONST();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(constTerminal));
         return text.toString();
     }
 
@@ -1039,8 +1047,15 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.SetterPartOfPropertyDeclarationContext setterPartOfPropertyDeclarationContext = context.setterPartOfPropertyDeclaration();
         final StringBuilder text = new StringBuilder();
         if (modifierListContext != null) {
-            text.append(this.visit(modifierListContext));
-            this.appendNewLinesAndIndent(text, 1);
+            final int visitAnnotationCountBefore = this.ruleVisitCounts.getOrDefault(KotlinParser.AnnotationContext.class.getSimpleName(), 0);
+            final String modifierListText = this.visit(modifierListContext);
+            final int visitAnnotationCountAfter = this.ruleVisitCounts.getOrDefault(KotlinParser.AnnotationContext.class.getSimpleName(), 0);
+            text.append(modifierListText);
+            if (visitAnnotationCountBefore < visitAnnotationCountAfter) {
+                this.appendNewLinesAndIndent(text, 1);
+            } else {
+                text.append(' ');
+            }
         }
         if (valTerminal != null) {
             text.append(this.visit(valTerminal));
