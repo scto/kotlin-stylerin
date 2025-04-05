@@ -1810,9 +1810,41 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.PostfixUnaryExpressionContext postfixUnaryExpressionContext = context.postfixUnaryExpression();
         final StringBuilder text = new StringBuilder();
         if (!prefixUnaryOperationContexts.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPrefixUnaryExpression -> prefixUnaryOperation");
+            final KotlinParser.PrefixUnaryOperationContext firstPrefixUnaryOperationContext = prefixUnaryOperationContexts.get(0);
+            text.append(this.visit(firstPrefixUnaryOperationContext));
+            if (prefixUnaryOperationContexts.size() > 1) {
+                throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPrefixUnaryExpression prefixUnaryOperation{2,}");
+            }
         }
         text.append(this.visit(postfixUnaryExpressionContext));
+        return text.toString();
+    }
+
+    @Override
+    public String visitPrefixUnaryOperation(final KotlinParser.PrefixUnaryOperationContext context) {
+        final TerminalNode incrTerminal = context.INCR();
+        final TerminalNode decrTerminal = context.DECR();
+        final TerminalNode addTerminal = context.ADD();
+        final TerminalNode subTerminal = context.SUB();
+        final TerminalNode exclTerminal = context.EXCL();
+        final KotlinParser.AnnotationsContext annotationsContext = context.annotations();
+        final KotlinParser.LabelDefinitionContext labelDefinitionContext = context.labelDefinition();
+        final StringBuilder text = new StringBuilder();
+        if (incrTerminal != null) {
+           text.append(this.visit(incrTerminal));
+        } else if (decrTerminal != null) {
+            text.append(this.visit(decrTerminal));
+        } else if (addTerminal != null) {
+            text.append(this.visit(addTerminal));
+        } else if (subTerminal != null) {
+            text.append(this.visit(subTerminal));
+        } else if (exclTerminal != null) {
+            text.append(this.visit(exclTerminal));
+        } else if (annotationsContext != null) {
+            text.append(this.visit(annotationsContext));
+        } else if (labelDefinitionContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPrefixUnaryOperation -> labelDefinition");
+        }
         return text.toString();
     }
 

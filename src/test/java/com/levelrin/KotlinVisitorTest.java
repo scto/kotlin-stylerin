@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatPrefixUnaryExpression() {
+        this.compare("prefix-unary-expression-before.kt", "prefix-unary-expression-after.kt");
+    }
+
+    @Test
     void shouldFormatZip() {
         this.compare("zip-before.kt", "zip-after.kt");
     }
