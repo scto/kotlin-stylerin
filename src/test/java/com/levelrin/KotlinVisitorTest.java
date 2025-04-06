@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatAtomicExpression() {
+        this.compare("atomic-expression-before.kt", "atomic-expression-after.kt");
+    }
+
+    @Test
     void shouldFormatPrefixUnaryExpression() {
         this.compare("prefix-unary-expression-before.kt", "prefix-unary-expression-after.kt");
     }

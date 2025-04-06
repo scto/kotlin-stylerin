@@ -2260,7 +2260,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.CollectionLiteralContext collectionLiteralContext = context.collectionLiteral();
         final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
         final TerminalNode valTerminal = context.VAL();
-        // todo: use `identifierContext` with tests.
         final KotlinParser.IdentifierContext identifierContext = context.identifier();
         final StringBuilder text = new StringBuilder();
         if (parenthesizedExpressionContext != null) {
@@ -2288,7 +2287,9 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (simpleIdentifierContext != null) {
             text.append(this.visit(simpleIdentifierContext));
         } else if (valTerminal != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> val");
+            text.append(this.visit(valTerminal))
+                .append(' ')
+                .append(this.visit(identifierContext));
         }
         return text.toString();
     }
