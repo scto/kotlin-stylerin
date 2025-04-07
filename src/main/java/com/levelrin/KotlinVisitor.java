@@ -1665,8 +1665,13 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         final KotlinParser.InfixFunctionCallContext firstInfixFunctionCallContext = infixFunctionCallContexts.get(0);
         text.append(this.visit(firstInfixFunctionCallContext));
-        if (!elvisTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitElvisExpression -> elvis");
+        for (int index = 0; index < elvisTerminals.size(); index++) {
+            final TerminalNode elvisTerminal = elvisTerminals.get(index);
+            final KotlinParser.InfixFunctionCallContext infixFunctionCallContext = infixFunctionCallContexts.get(index + 1);
+            text.append(' ')
+                .append(this.visit(elvisTerminal))
+                .append(' ')
+                .append(this.visit(infixFunctionCallContext));
         }
         return text.toString();
     }

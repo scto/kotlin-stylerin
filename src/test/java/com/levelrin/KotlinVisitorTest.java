@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatElvisOperator() {
+        this.compare("elvis-before.kt", "elvis-after.kt");
+    }
+
+    @Test
     void shouldFormatAtomicExpression() {
         this.compare("atomic-expression-before.kt", "atomic-expression-after.kt");
     }
