@@ -1529,8 +1529,14 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         final KotlinParser.ConjunctionContext firstConjunctionContext = conjunctionContexts.get(0);
         text.append(this.visit(firstConjunctionContext));
-        if (!disjTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitDisjunction -> disj");
+        for (int index = 0; index < disjTerminals.size(); index++) {
+            final TerminalNode disjTerminal = disjTerminals.get(index);
+            final KotlinParser.ConjunctionContext conjunctionContext = conjunctionContexts.get(index + 1);
+            text.append(' ')
+                .append(this.visit(disjTerminal))
+                .append(' ')
+                .append(this.visit(conjunctionContext));
+
         }
         return text.toString();
     }

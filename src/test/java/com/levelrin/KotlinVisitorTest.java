@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatDisjunction() {
+        this.compare("disjunction-before.kt", "disjunction-after.kt");
+    }
+
+    @Test
     void shouldFormatElvisOperator() {
         this.compare("elvis-before.kt", "elvis-after.kt");
     }
