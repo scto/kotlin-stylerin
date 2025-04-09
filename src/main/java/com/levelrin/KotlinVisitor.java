@@ -744,17 +744,19 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final TerminalNode rcurlTerminal = context.RCURL();
         final StringBuilder text = new StringBuilder();
         text.append(this.visit(lcurlTerminal));
-        this.currentIndentLevel++;
-        this.appendNewLinesAndIndent(text, 2);
-        for (int index = 0, size = classMemberDeclarationContexts.size(); index < size; index++) {
-            final KotlinParser.ClassMemberDeclarationContext classMemberDeclarationContext = classMemberDeclarationContexts.get(index);
-            text.append(this.visit(classMemberDeclarationContext));
-            if (index < classMemberDeclarationContexts.size() - 1) {
-                this.appendNewLinesAndIndent(text, 2);
+        if (!classMemberDeclarationContexts.isEmpty()) {
+            this.currentIndentLevel++;
+            this.appendNewLinesAndIndent(text, 2);
+            for (int index = 0, size = classMemberDeclarationContexts.size(); index < size; index++) {
+                final KotlinParser.ClassMemberDeclarationContext classMemberDeclarationContext = classMemberDeclarationContexts.get(index);
+                text.append(this.visit(classMemberDeclarationContext));
+                if (index < classMemberDeclarationContexts.size() - 1) {
+                    this.appendNewLinesAndIndent(text, 2);
+                }
             }
+            this.currentIndentLevel--;
+            this.appendNewLinesAndIndent(text, 2);
         }
-        this.currentIndentLevel--;
-        this.appendNewLinesAndIndent(text, 2);
         text.append(this.visit(rcurlTerminal));
         return text.toString();
     }
@@ -1017,7 +1019,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitDeclaration -> labelDefinition");
         }
         if (classDeclarationContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitDeclaration -> classDeclaration");
+            text.append(this.visit(classDeclarationContext));
         } else if (functionDeclarationContext != null) {
             text.append(this.visit(functionDeclarationContext));
         } else if (propertyDeclarationContext != null) {

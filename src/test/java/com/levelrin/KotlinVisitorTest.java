@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatDeclarations() {
+        this.compare("declaration-before.kt", "declaration-after.kt");
+    }
+
+    @Test
     void shouldFormatDisjunction() {
         this.compare("disjunction-before.kt", "disjunction-after.kt");
     }
