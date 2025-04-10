@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatUserType() {
+        this.compare("user-type-before.kt", "user-type-after.kt");
+    }
+
+    @Test
     void shouldFormatDeclarations() {
         this.compare("declaration-before.kt", "declaration-after.kt");
     }

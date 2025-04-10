@@ -1403,8 +1403,11 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         final KotlinParser.SimpleUserTypeContext firstSimpleUserTypeContext = simpleUserTypeContexts.get(0);
         text.append(this.visit(firstSimpleUserTypeContext));
-        if (!dotTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitUserType -> dot");
+        for (int index = 0; index < dotTerminals.size(); index++) {
+            final TerminalNode dotTerminal = dotTerminals.get(index);
+            final KotlinParser.SimpleUserTypeContext simpleUserTypeContext = simpleUserTypeContexts.get(index + 1);
+            text.append(this.visit(dotTerminal))
+                .append(this.visit(simpleUserTypeContext));
         }
         return text.toString();
     }
@@ -2064,11 +2067,13 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (lambdaParametersContext == null) {
             // LCURL NL* statements NL* RCURL
             text.append(this.visit(lcurlTerminal));
-            this.currentIndentLevel++;
-            this.appendNewLinesAndIndent(text, 2);
-            text.append(this.visit(statementsContext));
-            this.currentIndentLevel--;
-            this.appendNewLinesAndIndent(text, 2);
+            if (!statementsContext.getText().isEmpty()) {
+                this.currentIndentLevel++;
+                this.appendNewLinesAndIndent(text, 2);
+                text.append(this.visit(statementsContext));
+                this.currentIndentLevel--;
+                this.appendNewLinesAndIndent(text, 2);
+            }
             text.append(this.visit(rcurlTerminal));
         } else {
             // LCURL NL* lambdaParameters NL* ARROW NL* statements NL* RCURL
