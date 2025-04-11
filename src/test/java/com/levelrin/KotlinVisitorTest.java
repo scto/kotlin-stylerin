@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatAnonymousObject() {
+        this.compare("anonymous-object-before.kt", "anonymous-object-after.kt");
+    }
+
+    @Test
     void shouldFormatUserType() {
         this.compare("user-type-before.kt", "user-type-after.kt");
     }

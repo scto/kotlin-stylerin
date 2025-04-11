@@ -2295,7 +2295,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (tryExpressionContext != null) {
             text.append(this.visit(tryExpressionContext));
         } else if (objectLiteralContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> objectLiteral");
+            text.append(this.visit(objectLiteralContext));
         } else if (jumpExpressionContext != null) {
             text.append(this.visit(jumpExpressionContext));
         } else if (loopExpressionContext != null) {
@@ -2308,6 +2308,27 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(valTerminal))
                 .append(' ')
                 .append(this.visit(identifierContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitObjectLiteral(final KotlinParser.ObjectLiteralContext context) {
+        final TerminalNode objectTerminal = context.OBJECT();
+        final TerminalNode colonTerminal = context.COLON();
+        final KotlinParser.DelegationSpecifiersContext delegationSpecifiersContext = context.delegationSpecifiers();
+        final KotlinParser.ClassBodyContext classBodyContext = context.classBody();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(objectTerminal));
+        if (colonTerminal != null) {
+            text.append(' ')
+                .append(this.visit(colonTerminal))
+                .append(' ')
+                .append(this.visit(delegationSpecifiersContext));
+        }
+        if (classBodyContext != null) {
+            text.append(' ')
+                .append(this.visit(classBodyContext));
         }
         return text.toString();
     }
