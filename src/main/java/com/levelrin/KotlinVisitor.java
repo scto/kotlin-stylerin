@@ -84,13 +84,70 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.ImportListContext importListContext = context.importList();
         final StringBuilder text = new StringBuilder();
         if (fileAnnotationsContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPreamble -> fileAnnotations");
+            text.append(this.visit(fileAnnotationsContext));
         }
         if (!packageHeaderContext.getText().isEmpty()) {
             text.append(this.visit(packageHeaderContext));
             this.appendNewLinesAndIndent(text, 2);
         }
         text.append(this.visit(importListContext));
+        return text.toString();
+    }
+
+    @Override
+    public String visitFileAnnotations(final KotlinParser.FileAnnotationsContext context) {
+        final List<KotlinParser.FileAnnotationContext> fileAnnotationContexts = context.fileAnnotation();
+        final StringBuilder text = new StringBuilder();
+        for (int index = 0; index < fileAnnotationContexts.size(); index++) {
+            final KotlinParser.FileAnnotationContext fileAnnotationContext = fileAnnotationContexts.get(index);
+            text.append(this.visit(fileAnnotationContext));
+            if (index < fileAnnotationContexts.size() - 1) {
+                this.appendNewLinesAndIndent(text, 2);
+            }
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitFileAnnotation(final KotlinParser.FileAnnotationContext context) {
+        final List<KotlinParser.FileAnnotationPartContext> fileAnnotationPartContexts = context.fileAnnotationPart();
+        final StringBuilder text = new StringBuilder();
+        for (final KotlinParser.FileAnnotationPartContext fileAnnotationPartContext : fileAnnotationPartContexts) {
+            text.append(this.visit(fileAnnotationPartContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitFileAnnotationPart(final KotlinParser.FileAnnotationPartContext context) {
+        final TerminalNode fileTerminal = context.FILE();
+        final TerminalNode colonTerminal = context.COLON();
+        final KotlinParser.BracketedFileAnnotationPartContext bracketedFileAnnotationPartContext = context.bracketedFileAnnotationPart();
+        final KotlinParser.UnescapedAnnotationContext unescapedAnnotationContext = context.unescapedAnnotation();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(fileTerminal))
+            .append(this.visit(colonTerminal));
+        if (bracketedFileAnnotationPartContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFileAnnotationPart -> bracketedFileAnnotationPart");
+        } else if (unescapedAnnotationContext != null) {
+            text.append(this.visit(unescapedAnnotationContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitUnescapedAnnotation(final KotlinParser.UnescapedAnnotationContext context) {
+        final KotlinParser.IdentifierContext identifierContext = context.identifier();
+        final KotlinParser.TypeArgumentsContext typeArgumentsContext = context.typeArguments();
+        final KotlinParser.ValueArgumentsContext valueArgumentsContext = context.valueArguments();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(identifierContext));
+        if (typeArgumentsContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitUnescapedAnnotation -> typeArguments");
+        }
+        if (valueArgumentsContext != null) {
+            text.append(this.visit(valueArgumentsContext));
+        }
         return text.toString();
     }
 

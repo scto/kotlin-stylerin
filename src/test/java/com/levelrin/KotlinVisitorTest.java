@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatFileAnnotations() {
+        this.compare("file-annotation-before.kt", "file-annotation-after.kt");
+    }
+
+    @Test
     void shouldFormatAnonymousObject() {
         this.compare("anonymous-object-before.kt", "anonymous-object-after.kt");
     }

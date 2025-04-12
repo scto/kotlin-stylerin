@@ -38,7 +38,21 @@ fileAnnotations
     ;
 
 fileAnnotation
-    : (FILE COLON (LSQUARE unescapedAnnotation+ RSQUARE | unescapedAnnotation) semi?)+
+    // Original:
+    // (FILE COLON (LSQUARE unescapedAnnotation+ RSQUARE | unescapedAnnotation) semi?)+
+    : fileAnnotationPart+
+    ;
+
+// This is a rule that we created for easier parsing.
+fileAnnotationPart
+    // Original:
+    // FILE COLON (LSQUARE unescapedAnnotation+ RSQUARE | unescapedAnnotation) semi?
+    : FILE COLON (bracketedFileAnnotationPart | unescapedAnnotation) semi?
+    ;
+
+// This is a rule that we created for easier parsing.
+bracketedFileAnnotationPart
+    : LSQUARE unescapedAnnotation+ RSQUARE
     ;
 
 packageHeader
