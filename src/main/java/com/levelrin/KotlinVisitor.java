@@ -2346,7 +2346,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (thisExpressionContext != null) {
             text.append(this.visit(thisExpressionContext));
         } else if (superExpressionContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> superExpression");
+            text.append(this.visit(superExpressionContext));
         } else if (conditionalExpressionContext != null) {
             text.append(this.visit(conditionalExpressionContext));
         } else if (tryExpressionContext != null) {
@@ -2365,6 +2365,25 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(valTerminal))
                 .append(' ')
                 .append(this.visit(identifierContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitSuperExpression(final KotlinParser.SuperExpressionContext context) {
+        final TerminalNode superTerminal = context.SUPER();
+        final TerminalNode langleTerminal = context.LANGLE();
+        // todo: use `typeContext` and `rangleTerminal` with tests.
+        final KotlinParser.TypeContext typeContext = context.type();
+        final TerminalNode rangleTerminal = context.RANGLE();
+        final TerminalNode labelReferenceTerminal = context.LabelReference();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(superTerminal));
+        if (langleTerminal != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSuperExpression -> langle");
+        }
+        if (labelReferenceTerminal != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSuperExpression -> labelReference");
         }
         return text.toString();
     }

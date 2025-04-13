@@ -9,6 +9,7 @@ open class Animal {
 class Bird : Animal() {
 
     override fun move() {
+        super.move()
         println("Bird flying...")
     }
 
