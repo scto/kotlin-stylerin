@@ -1610,8 +1610,13 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         final KotlinParser.EqualityComparisonContext firstEqualityComparisonContext = equalityComparisonContexts.get(0);
         text.append(this.visit(firstEqualityComparisonContext));
-        if (!conjTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitConjunction -> conj");
+        for (int index = 0; index < conjTerminals.size(); index++) {
+            final TerminalNode conjTerminal = conjTerminals.get(index);
+            final KotlinParser.EqualityComparisonContext conjComparisonContext = equalityComparisonContexts.get(index + 1);
+            text.append(' ')
+                .append(this.visit(conjTerminal))
+                .append(' ')
+                .append(this.visit(conjComparisonContext));
         }
         return text.toString();
     }

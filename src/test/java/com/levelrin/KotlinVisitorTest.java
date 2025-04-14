@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatConjunction() {
+        this.compare("conjunction-before.kt", "conjunction-after.kt");
+    }
+
+    @Test
     void shouldFormatFileAnnotations() {
         this.compare("file-annotation-before.kt", "file-annotation-after.kt");
     }
