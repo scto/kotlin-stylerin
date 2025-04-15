@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatPrivateConstructor() {
+        this.compare("private-constructor-before.kt", "private-constructor-after.kt");
+    }
+
+    @Test
     void shouldFormatConjunction() {
         this.compare("conjunction-before.kt", "conjunction-after.kt");
     }

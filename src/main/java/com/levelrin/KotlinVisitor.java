@@ -429,10 +429,12 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.ClassParametersContext classParametersContext = context.classParameters();
         final StringBuilder text = new StringBuilder();
         if (modifierListContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPrimaryConstructor -> modifierList");
+            text.append(' ')
+                .append(this.visit(modifierListContext));
         }
         if (constructorTerminal != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPrimaryConstructor -> constructor");
+            text.append(' ')
+                .append(this.visit(constructorTerminal));
         }
         text.append(this.visit(classParametersContext));
         return text.toString();
@@ -2131,10 +2133,22 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(lcurlTerminal));
             if (!statementsContext.getText().isEmpty()) {
                 this.currentIndentLevel++;
-                this.appendNewLinesAndIndent(text, 2);
-                text.append(this.visit(statementsContext));
+                final int visitBlockLevelExpressionCountBefore = this.ruleVisitCounts.getOrDefault(KotlinParser.BlockLevelExpressionContext.class.getSimpleName(), 0);
+                final int visitDeclarationCountBefore = this.ruleVisitCounts.getOrDefault(KotlinParser.DeclarationContext.class.getSimpleName(), 0);
+                final String statementsText = this.visit(statementsContext);
+                final int visitBlockLevelExpressionCountAfter = this.ruleVisitCounts.getOrDefault(KotlinParser.BlockLevelExpressionContext.class.getSimpleName(), 0);
+                final int visitDeclarationCountAfter = this.ruleVisitCounts.getOrDefault(KotlinParser.DeclarationContext.class.getSimpleName(), 0);
+                final int visitBlockLevelExpressionCountDiff = visitBlockLevelExpressionCountAfter - visitBlockLevelExpressionCountBefore;
+                final int newLines;
+                if (visitBlockLevelExpressionCountDiff == 1 && visitDeclarationCountBefore == visitDeclarationCountAfter) {
+                    newLines = 1;
+                } else {
+                    newLines = 2;
+                }
+                this.appendNewLinesAndIndent(text, newLines);
+                text.append(statementsText);
                 this.currentIndentLevel--;
-                this.appendNewLinesAndIndent(text, 2);
+                this.appendNewLinesAndIndent(text, newLines);
             }
             text.append(this.visit(rcurlTerminal));
         } else {
