@@ -217,7 +217,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (functionDeclarationContext != null) {
             text.append(this.visit(functionDeclarationContext));
         } else if (propertyDeclarationContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitTopLevelObject -> propertyDeclaration");
+            text.append(this.visit(propertyDeclarationContext));
         } else if (typeAliasContext != null) {
             text.append(this.visit(typeAliasContext));
         }

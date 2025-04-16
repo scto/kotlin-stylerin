@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatTopLevelObjects() {
+        this.compare("top-level-object-before.kt", "top-level-object-after.kt");
+    }
+
+    @Test
     void shouldFormatPrivateConstructor() {
         this.compare("private-constructor-before.kt", "private-constructor-after.kt");
     }
