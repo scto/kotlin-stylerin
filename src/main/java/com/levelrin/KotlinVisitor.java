@@ -213,13 +213,43 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (classDeclarationContext != null) {
             text.append(this.visit(classDeclarationContext));
         } else if (objectDeclarationContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitTopLevelObject -> objectDeclaration");
+            text.append(this.visit(objectDeclarationContext));
         } else if (functionDeclarationContext != null) {
             text.append(this.visit(functionDeclarationContext));
         } else if (propertyDeclarationContext != null) {
             text.append(this.visit(propertyDeclarationContext));
         } else if (typeAliasContext != null) {
             text.append(this.visit(typeAliasContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitObjectDeclaration(final KotlinParser.ObjectDeclarationContext context) {
+        final KotlinParser.ModifierListContext modifierListContext = context.modifierList();
+        final TerminalNode objectTerminal = context.OBJECT();
+        final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
+        final KotlinParser.PrimaryConstructorContext primaryConstructorContext = context.primaryConstructor();
+        final TerminalNode colonTerminal = context.COLON();
+        // todo: use `delegationSpecifiersContext` with tests.
+        final KotlinParser.DelegationSpecifiersContext delegationSpecifiersContext = context.delegationSpecifiers();
+        final KotlinParser.ClassBodyContext classBodyContext = context.classBody();
+        final StringBuilder text = new StringBuilder();
+        if (modifierListContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitObjectDeclaration -> modifierList");
+        }
+        text.append(this.visit(objectTerminal))
+            .append(' ')
+            .append(this.visit(simpleIdentifierContext));
+        if (primaryConstructorContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitObjectDeclaration -> primaryConstructor");
+        }
+        if (colonTerminal != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitObjectDeclaration -> colon");
+        }
+        if (classBodyContext != null) {
+            text.append(' ')
+                .append(this.visit(classBodyContext));
         }
         return text.toString();
     }
