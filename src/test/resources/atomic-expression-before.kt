@@ -5,4 +5,6 @@ fun main() {
         0 -> println(num)
         else -> println(num)
     }
+    val message =  ( "Yoi" )  +  " Yoi"
+    println(message)
 }

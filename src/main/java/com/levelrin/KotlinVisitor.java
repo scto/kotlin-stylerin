@@ -2387,7 +2387,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.IdentifierContext identifierContext = context.identifier();
         final StringBuilder text = new StringBuilder();
         if (parenthesizedExpressionContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> parenthesizedExpression");
+            text.append(this.visit(parenthesizedExpressionContext));
         } else if (literalConstantContext != null) {
             text.append(this.visit(literalConstantContext));
         } else if (functionLiteralContext != null) {
@@ -2415,6 +2415,18 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
                 .append(' ')
                 .append(this.visit(identifierContext));
         }
+        return text.toString();
+    }
+
+    @Override
+    public String visitParenthesizedExpression(final KotlinParser.ParenthesizedExpressionContext context) {
+        final TerminalNode lparenTerminal = context.LPAREN();
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final TerminalNode rparenTerminal = context.RPAREN();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(lparenTerminal))
+            .append(this.visit(expressionContext))
+            .append(this.visit(rparenTerminal));
         return text.toString();
     }
 
