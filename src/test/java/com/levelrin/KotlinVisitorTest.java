@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatObjectDeclarations() {
+        this.compare("object-declaration-before.kt", "object-declaration-after.kt");
+    }
+
+    @Test
     void shouldFormatClassMemberDeclarations() {
         this.compare("class-member-declaration-before.kt", "class-member-declaration-after.kt");
     }

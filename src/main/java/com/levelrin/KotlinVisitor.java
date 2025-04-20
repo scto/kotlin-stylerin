@@ -231,7 +231,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.SimpleIdentifierContext simpleIdentifierContext = context.simpleIdentifier();
         final KotlinParser.PrimaryConstructorContext primaryConstructorContext = context.primaryConstructor();
         final TerminalNode colonTerminal = context.COLON();
-        // todo: use `delegationSpecifiersContext` with tests.
         final KotlinParser.DelegationSpecifiersContext delegationSpecifiersContext = context.delegationSpecifiers();
         final KotlinParser.ClassBodyContext classBodyContext = context.classBody();
         final StringBuilder text = new StringBuilder();
@@ -245,7 +244,10 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitObjectDeclaration -> primaryConstructor");
         }
         if (colonTerminal != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitObjectDeclaration -> colon");
+            text.append(' ')
+                .append(this.visit(colonTerminal))
+                .append(' ')
+                .append(this.visit(delegationSpecifiersContext));
         }
         if (classBodyContext != null) {
             text.append(' ')
