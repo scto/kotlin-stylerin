@@ -393,7 +393,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final TerminalNode lcurlTerminal = context.LCURL();
         final KotlinParser.EnumEntriesContext enumEntriesContext = context.enumEntries();
         final TerminalNode semicolonTerminal = context.SEMICOLON();
-        // todo: use `classMemberDeclarationContexts` with tests.
         final List<KotlinParser.ClassMemberDeclarationContext> classMemberDeclarationContexts = context.classMemberDeclaration();
         final TerminalNode rcurlTerminal = context.RCURL();
         final StringBuilder text = new StringBuilder();
@@ -404,7 +403,17 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(enumEntriesContext));
         }
         if (semicolonTerminal != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitEnumClassBody -> semicolon");
+            text.append(this.visit(semicolonTerminal));
+            for (int index = 0; index < classMemberDeclarationContexts.size(); index++) {
+                if (index == 0) {
+                    this.appendNewLinesAndIndent(text, 2);
+                }
+                final KotlinParser.ClassMemberDeclarationContext classMemberDeclarationContext = classMemberDeclarationContexts.get(index);
+                text.append(this.visit(classMemberDeclarationContext));
+                if (index < classMemberDeclarationContexts.size() - 1) {
+                    this.appendNewLinesAndIndent(text, 2);
+                }
+            }
         }
         this.currentIndentLevel--;
         this.appendNewLinesAndIndent(text, 2);
@@ -421,7 +430,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             final KotlinParser.EnumEntryContext enumEntry = enumEntryContexts.get(index);
             text.append(this.visit(enumEntry));
             if (index < enumEntryContexts.size() - 1) {
-                this.appendNewLinesAndIndent(text, 1);
+                this.appendNewLinesAndIndent(text, 2);
             }
         }
         if (semicolonTerminal != null) {
@@ -446,7 +455,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(valueArgumentsContext));
         }
         if (classBodyContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitEnumEntry -> classBody");
+            text.append(' ')
+                .append(this.visit(classBodyContext));
         }
         if (commaTerminal != null) {
             text.append(this.visit(commaTerminal));

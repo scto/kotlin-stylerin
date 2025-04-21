@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatEnumEntry() {
+        this.compare("enum-entry-before.kt", "enum-entry-after.kt");
+    }
+
+    @Test
     void shouldFormatObjectDeclarations() {
         this.compare("object-declaration-before.kt", "object-declaration-after.kt");
     }
