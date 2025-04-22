@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatDelegationSpecifiers() {
+        this.compare("delegation-specifiers-before.kt", "delegation-specifiers-after.kt");
+    }
+
+    @Test
     void shouldFormatEnumEntry() {
         this.compare("enum-entry-before.kt", "enum-entry-after.kt");
     }

@@ -556,8 +556,12 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         }
         final KotlinParser.DelegationSpecifierContext firstDelegationSpecifierContext = delegationSpecifierContexts.get(0);
         text.append(this.visit(firstDelegationSpecifierContext));
-        if (!commaTerminals.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitDelegationSpecifiers -> comma");
+        for (int index = 0; index < commaTerminals.size(); index++) {
+            final TerminalNode commaTerminal = commaTerminals.get(index);
+            final KotlinParser.DelegationSpecifierContext delegationSpecifierContext = delegationSpecifierContexts.get(index + 1);
+            text.append(this.visit(commaTerminal))
+                .append(' ')
+                .append(this.visit(delegationSpecifierContext));
         }
         return text.toString();
     }
