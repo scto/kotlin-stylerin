@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatTypeProjections() {
+        this.compare("type-projection-before.kt", "type-projection-after.kt");
+    }
+
+    @Test
     void shouldFormatDelegationSpecifiers() {
         this.compare("delegation-specifiers-before.kt", "delegation-specifiers-after.kt");
     }

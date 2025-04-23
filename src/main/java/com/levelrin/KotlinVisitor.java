@@ -1566,11 +1566,37 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         if (typeContext != null) {
             if (typeProjectionModifierListContext != null) {
-                throw new UnsupportedOperationException("The following parsing path is not supported yet: visitTypeProjection -> typeProjectionModifierList");
+                text.append(this.visit(typeProjectionModifierListContext))
+                    .append(' ');
             }
             text.append(this.visit(typeContext));
         } else if(multTerminal != null) {
             text.append(this.visit(multTerminal));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitTypeProjectionModifierList(final KotlinParser.TypeProjectionModifierListContext context) {
+        final List<KotlinParser.VarianceAnnotationContext> varianceAnnotationContexts = context.varianceAnnotation();
+        final StringBuilder text = new StringBuilder();
+        final KotlinParser.VarianceAnnotationContext firstVarianceAnnotationContext = varianceAnnotationContexts.get(0);
+        text.append(this.visit(firstVarianceAnnotationContext));
+        if (varianceAnnotationContexts.size() > 1) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitTypeProjectionModifierList -> varianceAnnotation > 1");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitVarianceAnnotation(final KotlinParser.VarianceAnnotationContext context) {
+        final TerminalNode inTerminal = context.IN();
+        final TerminalNode outTerminal = context.OUT();
+        final StringBuilder text = new StringBuilder();
+        if (inTerminal != null) {
+            text.append(this.visit(inTerminal));
+        } else if (outTerminal != null) {
+            text.append(this.visit(outTerminal));
         }
         return text.toString();
     }
