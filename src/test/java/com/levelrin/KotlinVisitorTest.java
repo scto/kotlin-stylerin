@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatStringLiterals() {
+        this.compare("string-literal-before.kt", "string-literal-after.kt");
+    }
+
+    @Test
     void shouldFormatTypeProjections() {
         this.compare("type-projection-before.kt", "type-projection-after.kt");
     }

@@ -2908,7 +2908,56 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (lineStringLiteralContext != null) {
             text.append(this.visit(lineStringLiteralContext));
         } else if (multiLineStringLiteralContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitStringLiteral -> multiLineStringLiteral");
+            text.append(this.visit(multiLineStringLiteralContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitMultiLineStringLiteral(final KotlinParser.MultiLineStringLiteralContext context) {
+        final TerminalNode tripleQuoteOpenTerminal = context.TRIPLE_QUOTE_OPEN();
+        final List<KotlinParser.MultiLineStringLiteralPartContext> multiLineStringLiteralPartContexts = context.multiLineStringLiteralPart();
+        final TerminalNode tripleQuoteCloseTerminal = context.TRIPLE_QUOTE_CLOSE();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(tripleQuoteOpenTerminal));
+        for (final KotlinParser.MultiLineStringLiteralPartContext multiLineStringLiteralPartContext : multiLineStringLiteralPartContexts) {
+            text.append(this.visit(multiLineStringLiteralPartContext));
+        }
+        text.append(this.visit(tripleQuoteCloseTerminal));
+        return text.toString();
+    }
+
+    @Override
+    public String visitMultiLineStringLiteralPart(final KotlinParser.MultiLineStringLiteralPartContext context) {
+        final KotlinParser.MultiLineStringContentContext multiLineStringContentContext = context.multiLineStringContent();
+        final KotlinParser.MultiLineStringExpressionContext multiLineStringExpressionContext = context.multiLineStringExpression();
+        final KotlinParser.LineStringLiteralContext lineStringLiteralContext = context.lineStringLiteral();
+        final TerminalNode multiLineStringQuote = context.MultiLineStringQuote();
+        final StringBuilder text = new StringBuilder();
+        if (multiLineStringContentContext != null) {
+            text.append(this.visit(multiLineStringContentContext));
+        } else if (multiLineStringExpressionContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitMultiLineStringLiteralPart -> multiLineStringExpression");
+        } else if (lineStringLiteralContext != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitMultiLineStringLiteralPart -> lineStringLiteral");
+        } else if (multiLineStringQuote != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitMultiLineStringLiteralPart -> MultiLineStringQuote");
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitMultiLineStringContent(final KotlinParser.MultiLineStringContentContext context) {
+        final TerminalNode multiLineStrTextTerminal = context.MultiLineStrText();
+        final TerminalNode multiLineStrEscapedCharTerminal = context.MultiLineStrEscapedChar();
+        final TerminalNode multiLineStrRefTerminal = context.MultiLineStrRef();
+        final StringBuilder text = new StringBuilder();
+        if (multiLineStrTextTerminal != null) {
+            text.append(this.visit(multiLineStrTextTerminal));
+        } else if (multiLineStrEscapedCharTerminal != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitMultiLineStringContent -> MultiLineStrEscapedChar");
+        } else if (multiLineStrRefTerminal != null) {
+            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitMultiLineStringContent -> MultiLineStrRef");
         }
         return text.toString();
     }

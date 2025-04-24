@@ -503,12 +503,22 @@ lineStringContentOrExpression
     ;
 
 multiLineStringLiteral
-    : TRIPLE_QUOTE_OPEN (
-        multiLineStringContent
-        | multiLineStringExpression
-        | lineStringLiteral
-        | MultiLineStringQuote
-    )* TRIPLE_QUOTE_CLOSE
+    // Original:
+    // TRIPLE_QUOTE_OPEN (
+    //     multiLineStringContent
+    //     | multiLineStringExpression
+    //     | lineStringLiteral
+    //     | MultiLineStringQuote
+    // )* TRIPLE_QUOTE_CLOSE
+    : TRIPLE_QUOTE_OPEN multiLineStringLiteralPart* TRIPLE_QUOTE_CLOSE
+    ;
+
+// This is a rule that we created for easier parsing.
+multiLineStringLiteralPart
+    : multiLineStringContent
+    | multiLineStringExpression
+    | lineStringLiteral
+    | MultiLineStringQuote
     ;
 
 lineStringContent
