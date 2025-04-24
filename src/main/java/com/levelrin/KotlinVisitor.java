@@ -2941,7 +2941,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (lineStringLiteralContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitMultiLineStringLiteralPart -> lineStringLiteral");
         } else if (multiLineStringQuote != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitMultiLineStringLiteralPart -> MultiLineStringQuote");
+            text.append(this.visit(multiLineStringQuote));
         }
         return text.toString();
     }
@@ -2957,7 +2957,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (multiLineStrEscapedCharTerminal != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitMultiLineStringContent -> MultiLineStrEscapedChar");
         } else if (multiLineStrRefTerminal != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitMultiLineStringContent -> MultiLineStrRef");
+            text.append(this.visit(multiLineStrRefTerminal));
         }
         return text.toString();
     }

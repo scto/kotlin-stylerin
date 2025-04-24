@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatMultiLineStringLiterals() {
+        this.compare("multi-line-string-literal-before.kt", "multi-line-string-literal-after.kt");
+    }
+
+    @Test
     void shouldFormatStringLiterals() {
         this.compare("string-literal-before.kt", "string-literal-after.kt");
     }
