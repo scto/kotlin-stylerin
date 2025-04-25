@@ -2937,12 +2937,24 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (multiLineStringContentContext != null) {
             text.append(this.visit(multiLineStringContentContext));
         } else if (multiLineStringExpressionContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitMultiLineStringLiteralPart -> multiLineStringExpression");
+            text.append(this.visit(multiLineStringExpressionContext));
         } else if (lineStringLiteralContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitMultiLineStringLiteralPart -> lineStringLiteral");
         } else if (multiLineStringQuote != null) {
             text.append(this.visit(multiLineStringQuote));
         }
+        return text.toString();
+    }
+
+    @Override
+    public String visitMultiLineStringExpression(final KotlinParser.MultiLineStringExpressionContext context) {
+        final TerminalNode multiLineStrExprStartTerminal = context.MultiLineStrExprStart();
+        final KotlinParser.ExpressionContext expressionContext = context.expression();
+        final TerminalNode rcurlTerminal = context.RCURL();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(multiLineStrExprStartTerminal))
+            .append(this.visit(expressionContext))
+            .append(this.visit(rcurlTerminal));
         return text.toString();
     }
 
