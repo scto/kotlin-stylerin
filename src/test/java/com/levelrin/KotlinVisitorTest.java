@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatWhenConditions() {
+        this.compare("when-condition-before.kt", "when-condition-after.kt");
+    }
+
+    @Test
     void shouldFormatMultiLineStringLiterals() {
         this.compare("multi-line-string-literal-before.kt", "multi-line-string-literal-after.kt");
     }

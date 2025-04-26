@@ -2808,7 +2808,20 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (rangeTestContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitWhenCondition -> rangeTest");
         } else if (typeTestContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitWhenCondition -> typeTest");
+            text.append(this.visit(typeTestContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitTypeTest(final KotlinParser.TypeTestContext context) {
+        final KotlinParser.IsOperatorContext isOperatorContext = context.isOperator();
+        final KotlinParser.TypeContext typeContext = context.type();
+        final StringBuilder text = new StringBuilder();
+        if (isOperatorContext != null) {
+            text.append(this.visit(isOperatorContext))
+                .append(' ')
+                .append(this.visit(typeContext));
         }
         return text.toString();
     }
