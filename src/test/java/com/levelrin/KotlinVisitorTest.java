@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatPostfixUnaryOperations() {
+        this.compare("postfix-unary-operation-before.kt", "postfix-unary-operation-after.kt");
+    }
+
+    @Test
     void shouldFormatWhenConditions() {
         this.compare("when-condition-before.kt", "when-condition-after.kt");
     }
