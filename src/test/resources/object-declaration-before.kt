@@ -9,3 +9,5 @@ object Cat   :   Animal   {
         println("jump!")
     }
 }
+
+private    object   One   {   }

@@ -11,3 +11,5 @@ object Cat : Animal {
     }
 
 }
+
+private object One {}
