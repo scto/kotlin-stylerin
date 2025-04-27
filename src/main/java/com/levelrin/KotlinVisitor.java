@@ -2066,7 +2066,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (incrTerminal != null) {
             text.append(this.visit(incrTerminal));
         } else if (decrTerminal != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPostfixUnaryOperation -> decr");
+            text.append(this.visit(decrTerminal));
         } else if (!exclTerminals.isEmpty()) {
             for (final TerminalNode exclTerminal : exclTerminals) {
                 text.append(this.visit(exclTerminal));
