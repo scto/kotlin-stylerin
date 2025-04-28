@@ -961,7 +961,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
                 .append(this.visit(constructorDelegationCallContext));
         }
         if (blockContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSecondaryConstructor -> block");
+            text.append(' ')
+                .append(this.visit(blockContext));
         }
         return text.toString();
     }

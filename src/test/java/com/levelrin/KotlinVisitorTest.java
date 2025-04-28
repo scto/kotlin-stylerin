@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatSecondaryConstructor() {
+        this.compare("secondary-constructor-before.kt", "secondary-constructor-after.kt");
+    }
+
+    @Test
     void shouldFormatPostfixUnaryOperations() {
         this.compare("postfix-unary-operation-before.kt", "postfix-unary-operation-after.kt");
     }
