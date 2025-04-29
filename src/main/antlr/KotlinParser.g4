@@ -711,9 +711,19 @@ multiplicativeOperation
     ;
 
 typeOperation
+    // Original:
+    // : AS
+    // | AS_SAFE
+    // | COLON
+    // ;
     : AS
     | AS_SAFE
-    | COLON
+    | colonTypeOperation
+    ;
+
+// This is a rule that we created for easier parsing.
+colonTypeOperation
+    : COLON
     ;
 
 prefixUnaryOperation

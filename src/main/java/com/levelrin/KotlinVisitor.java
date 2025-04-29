@@ -1934,8 +1934,13 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         for (int index = 0; index < typeOperationContexts.size(); index++) {
             final KotlinParser.TypeOperationContext typeOperationContext = typeOperationContexts.get(index);
             final KotlinParser.PrefixUnaryExpressionContext prefixUnaryExpressionContext = prefixUnaryExpressionContexts.get(index + 1);
-            text.append(' ')
-                .append(this.visit(typeOperationContext))
+            final int visitColonTypeOperationCountBefore = this.ruleVisitCounts.getOrDefault(KotlinParser.ColonTypeOperationContext.class.getSimpleName(), 0);
+            final String typeOperationText = this.visit(typeOperationContext);
+            final int visitColonTypeOperationCountAfter = this.ruleVisitCounts.getOrDefault(KotlinParser.ColonTypeOperationContext.class.getSimpleName(), 0);
+            if (visitColonTypeOperationCountBefore == visitColonTypeOperationCountAfter) {
+                text.append(' ');
+            }
+            text.append(typeOperationText)
                 .append(' ')
                 .append(this.visit(prefixUnaryExpressionContext));
         }
@@ -1946,15 +1951,23 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     public String visitTypeOperation(final KotlinParser.TypeOperationContext context) {
         final TerminalNode asTerminal = context.AS();
         final TerminalNode asSafeTerminal = context.AS_SAFE();
-        final TerminalNode colonTerminal = context.COLON();
+        final KotlinParser.ColonTypeOperationContext colonTypeOperationContext = context.colonTypeOperation();
         final StringBuilder text = new StringBuilder();
         if (asTerminal != null) {
             text.append(this.visit(asTerminal));
         } else if (asSafeTerminal != null) {
             text.append(this.visit(asSafeTerminal));
-        } else if (colonTerminal != null) {
-            text.append(this.visit(colonTerminal));
+        } else if (colonTypeOperationContext != null) {
+            text.append(this.visit(colonTypeOperationContext));
         }
+        return text.toString();
+    }
+
+    @Override
+    public String visitColonTypeOperation(final KotlinParser.ColonTypeOperationContext context) {
+        final TerminalNode colonTerminal = context.COLON();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(colonTerminal));
         return text.toString();
     }
 
@@ -2182,8 +2195,9 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final TerminalNode labelDefinitionTerminal = context.LabelDefinition();
         final KotlinParser.FunctionLiteralContext functionLiteralContext = context.functionLiteral();
         final StringBuilder text = new StringBuilder();
-        if (!unescapedAnnotationContexts.isEmpty()) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAnnotatedLambda -> unescapedAnnotation");
+        for (final KotlinParser.UnescapedAnnotationContext unescapedAnnotationContext : unescapedAnnotationContexts) {
+            text.append(this.visit(unescapedAnnotationContext))
+                .append(' ');
         }
         if (labelDefinitionTerminal != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAnnotatedLambda -> labelDefinition");

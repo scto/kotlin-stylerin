@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatAnnotatedLambda() {
+        this.compare("annotated-lambda-before.kt", "annotated-lambda-after.kt");
+    }
+
+    @Test
     void shouldFormatSecondaryConstructor() {
         this.compare("secondary-constructor-before.kt", "secondary-constructor-after.kt");
     }
