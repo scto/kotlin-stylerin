@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatCallSuffix() {
+        this.compare("call-suffix-before.kt", "call-suffix-after.kt");
+    }
+
+    @Test
     void shouldFormatAnnotatedLambda() {
         this.compare("annotated-lambda-before.kt", "annotated-lambda-after.kt");
     }
