@@ -15,11 +15,9 @@ class Task(private val callback: Callback) {
 fun main() {
     val task = Task(
         object : Callback {
-
             override fun onComplete(result: String) {
                 println("Result: $result")
             }
-
         }
     )
     task.execute()

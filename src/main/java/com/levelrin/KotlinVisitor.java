@@ -2010,8 +2010,16 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (annotationsContext != null) {
             text.append(this.visit(annotationsContext));
         } else if (labelDefinitionContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPrefixUnaryOperation -> labelDefinition");
+            text.append(this.visit(labelDefinitionContext));
         }
+        return text.toString();
+    }
+
+    @Override
+    public String visitLabelDefinition(final KotlinParser.LabelDefinitionContext context) {
+        final TerminalNode labelDefinitionTerminal = context.LabelDefinition();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(labelDefinitionTerminal));
         return text.toString();
     }
 
@@ -2229,14 +2237,11 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(lcurlTerminal));
             if (!statementsContext.getText().isEmpty()) {
                 this.currentIndentLevel++;
-                final int visitBlockLevelExpressionCountBefore = this.ruleVisitCounts.getOrDefault(KotlinParser.BlockLevelExpressionContext.class.getSimpleName(), 0);
                 final int visitDeclarationCountBefore = this.ruleVisitCounts.getOrDefault(KotlinParser.DeclarationContext.class.getSimpleName(), 0);
                 final String statementsText = this.visit(statementsContext);
-                final int visitBlockLevelExpressionCountAfter = this.ruleVisitCounts.getOrDefault(KotlinParser.BlockLevelExpressionContext.class.getSimpleName(), 0);
                 final int visitDeclarationCountAfter = this.ruleVisitCounts.getOrDefault(KotlinParser.DeclarationContext.class.getSimpleName(), 0);
-                final int visitBlockLevelExpressionCountDiff = visitBlockLevelExpressionCountAfter - visitBlockLevelExpressionCountBefore;
                 final int newLines;
-                if (visitBlockLevelExpressionCountDiff == 1 && visitDeclarationCountBefore == visitDeclarationCountAfter) {
+                if (visitDeclarationCountBefore == visitDeclarationCountAfter) {
                     newLines = 1;
                 } else {
                     newLines = 2;

@@ -55,6 +55,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatPrefixUnaryOperation() {
+        this.compare("prefix-unary-operation-before.kt", "prefix-unary-operation-after.kt");
+    }
+
+    @Test
     void shouldFormatCallSuffix() {
         this.compare("call-suffix-before.kt", "call-suffix-after.kt");
     }
