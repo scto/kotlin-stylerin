@@ -10,4 +10,10 @@ class Animal {
         println("moving...")
     }
 
+        @get : JvmName ( "getCustomTitle" )
+    var title: String = "Default Title"
+        set(value) {
+            field = value
+        }
+
 }

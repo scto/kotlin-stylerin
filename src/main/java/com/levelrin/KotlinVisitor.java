@@ -677,7 +677,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     @Override
     public String visitAnnotation(final KotlinParser.AnnotationContext context) {
         final KotlinParser.AnnotationUseSiteTargetContext annotationUseSiteTargetContext = context.annotationUseSiteTarget();
-        // todo: use `colonTerminal` and `unescapedAnnotationContext` with tests.
         final TerminalNode colonTerminal = context.COLON();
         final KotlinParser.UnescapedAnnotationContext unescapedAnnotationContext = context.unescapedAnnotation();
         final TerminalNode labelReferenceTerminal = context.LabelReference();
@@ -689,7 +688,9 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final StringBuilder text = new StringBuilder();
         if (annotationUseSiteTargetContext != null) {
             // annotationUseSiteTarget NL* COLON NL* unescapedAnnotation
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAnnotation -> annotationUseSiteTarget");
+            text.append(this.visit(annotationUseSiteTargetContext))
+                .append(this.visit(colonTerminal))
+                .append(this.visit(unescapedAnnotationContext));
         } else if (labelReferenceTerminal != null) {
             // LabelReference (NL* DOT NL* simpleIdentifier)* (NL* typeArguments)? (NL* valueArguments)?
             text.append(this.visit(labelReferenceTerminal));
@@ -702,6 +703,40 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             if (valueArgumentsContext != null) {
                 text.append(this.visit(valueArgumentsContext));
             }
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitAnnotationUseSiteTarget(final KotlinParser.AnnotationUseSiteTargetContext context) {
+        final TerminalNode fieldTerminal = context.FIELD();
+        final TerminalNode fileTerminal = context.FILE();
+        final TerminalNode propertyTerminal = context.PROPERTY();
+        final TerminalNode getTerminal = context.GET();
+        final TerminalNode setTerminal = context.SET();
+        final TerminalNode receiverTerminal = context.RECEIVER();
+        final TerminalNode paramTerminal = context.PARAM();
+        final TerminalNode setparamTerminal = context.SETPARAM();
+        final TerminalNode delegateTerminal = context.DELEGATE();
+        final StringBuilder text = new StringBuilder();
+        if (fieldTerminal != null) {
+            text.append(this.visit(fieldTerminal));
+        } else if (fileTerminal != null) {
+            text.append(this.visit(fileTerminal));
+        } else if (propertyTerminal != null) {
+            text.append(this.visit(propertyTerminal));
+        } else if (getTerminal != null) {
+            text.append(this.visit(getTerminal));
+        } else if (setTerminal != null) {
+            text.append(this.visit(setTerminal));
+        } else if (receiverTerminal != null) {
+            text.append(this.visit(receiverTerminal));
+        } else if (paramTerminal != null) {
+            text.append(this.visit(paramTerminal));
+        } else if (setparamTerminal != null) {
+            text.append(this.visit(setparamTerminal));
+        } else if (delegateTerminal != null) {
+            text.append(this.visit(delegateTerminal));
         }
         return text.toString();
     }
