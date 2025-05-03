@@ -32,6 +32,9 @@ final class KotlinVisitorTest {
             final KotlinLexer lexer = new KotlinLexer(charStream);
             final CommonTokenStream tokens = new CommonTokenStream(lexer);
             final KotlinParser parser = new KotlinParser(tokens);
+            final ThrowableErrorListener errorListener = new ThrowableErrorListener();
+            parser.removeErrorListeners();
+            parser.addErrorListener(errorListener);
             final ParseTree tree = parser.kotlinFile();
             final KotlinVisitor visitor = new KotlinVisitor(tokens);
             final String result = visitor.visit(tree);
