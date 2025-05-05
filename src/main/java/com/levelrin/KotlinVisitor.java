@@ -985,7 +985,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.BlockContext blockContext = context.block();
         final StringBuilder text = new StringBuilder();
         if (modifierListContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitSecondaryConstructor -> modifierList");
+            text.append(this.visit(modifierListContext))
+                .append(' ');
         }
         text.append(this.visit(constructorTerminal))
             .append(this.visit(functionValueParametersContext));
