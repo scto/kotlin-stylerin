@@ -58,6 +58,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatPropertyDeclaration() {
+        this.compare("property-declaration-before.kt", "property-declaration-after.kt");
+    }
+
+    @Test
     void shouldFormatValueArgument() {
         this.compare("value-argument-before.kt", "value-argument-after.kt");
     }

@@ -1180,7 +1180,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final TerminalNode varTerminal = context.VAR();
         final KotlinParser.TypeParametersContext typeParametersContext = context.typeParameters();
         final KotlinParser.TypeContext typeContext = context.type();
-        // todo: use `dotTerminal` with tests.
         final TerminalNode dotTerminal = context.DOT();
         final KotlinParser.MultiVariableDeclarationContext multiVariableDeclarationContext = context.multiVariableDeclaration();
         final KotlinParser.VariableDeclarationContext variableDeclarationContext = context.variableDeclaration();
@@ -1215,7 +1214,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         }
         if (typeContext != null) {
             // (NL* type NL* DOT)?
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitPropertyDeclaration -> type");
+            text.append(this.visit(typeContext))
+                .append(this.visit(dotTerminal));
         }
         // NL* (multiVariableDeclaration | variableDeclaration)
         if (multiVariableDeclarationContext != null) {
