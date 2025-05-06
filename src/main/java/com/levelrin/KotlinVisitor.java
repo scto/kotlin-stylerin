@@ -2458,7 +2458,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(namedParamContext));
         }
         if (multTerminal != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitValueArgument -> mult");
+            text.append(this.visit(multTerminal));
         }
         text.append(this.visit(expressionContext));
         return text.toString();

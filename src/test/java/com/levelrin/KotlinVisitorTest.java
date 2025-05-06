@@ -58,6 +58,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatValueArgument() {
+        this.compare("value-argument-before.kt", "value-argument-after.kt");
+    }
+
+    @Test
     void shouldFormatPrefixUnaryOperation() {
         this.compare("prefix-unary-operation-before.kt", "prefix-unary-operation-after.kt");
     }
