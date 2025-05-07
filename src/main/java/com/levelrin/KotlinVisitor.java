@@ -2498,7 +2498,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (literalConstantContext != null) {
             text.append(this.visit(literalConstantContext));
         } else if (functionLiteralContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> functionLiteral");
+            text.append(this.visit(functionLiteralContext));
         } else if (thisExpressionContext != null) {
             text.append(this.visit(thisExpressionContext));
         } else if (superExpressionContext != null) {
