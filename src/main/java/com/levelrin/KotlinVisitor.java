@@ -1113,11 +1113,18 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final TerminalNode rcurlTerminal = context.RCURL();
         final StringBuilder text = new StringBuilder();
         text.append(this.visit(lcurlTerminal));
+        // The `statements` context depends on the current indent level.
+        // That's why we need to assume the `statements` context is not empty and increase the indent level before parsing it.
         this.currentIndentLevel++;
-        this.appendNewLinesAndIndent(text, 1);
-        text.append(this.visit(statementsContext));
-        this.currentIndentLevel--;
-        this.appendNewLinesAndIndent(text, 1);
+        final String statementsText = this.visit(statementsContext);
+        if (statementsText.trim().isEmpty()) {
+            this.currentIndentLevel--;
+        } else {
+            this.appendNewLinesAndIndent(text, 1);
+            text.append(statementsText);
+            this.currentIndentLevel--;
+            this.appendNewLinesAndIndent(text, 1);
+        }
         text.append(this.visit(rcurlTerminal));
         return text.toString();
     }
@@ -2514,7 +2521,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (loopExpressionContext != null) {
             text.append(this.visit(loopExpressionContext));
         } else if (collectionLiteralContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitAtomicExpression -> collectionLiteral");
+            text.append(this.visit(collectionLiteralContext));
         } else if (simpleIdentifierContext != null) {
             text.append(this.visit(simpleIdentifierContext));
         } else if (valTerminal != null) {
@@ -2522,6 +2529,29 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
                 .append(' ')
                 .append(this.visit(identifierContext));
         }
+        return text.toString();
+    }
+
+    @Override
+    public String visitCollectionLiteral(final KotlinParser.CollectionLiteralContext context) {
+        final TerminalNode lsqaureTerminal = context.LSQUARE();
+        final List<KotlinParser.ExpressionContext> expressionContexts = context.expression();
+        final List<TerminalNode> commaTerminals = context.COMMA();
+        final TerminalNode rsqaureTerminal = context.RSQUARE();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(lsqaureTerminal));
+        if (!expressionContexts.isEmpty()) {
+            final KotlinParser.ExpressionContext firstExpressionContext = expressionContexts.get(0);
+            text.append(this.visit(firstExpressionContext));
+        }
+        for (int index = 0; index < commaTerminals.size(); index++) {
+            final TerminalNode commaTerminal = commaTerminals.get(index);
+            final KotlinParser.ExpressionContext expressionContext = expressionContexts.get(index + 1);
+            text.append(this.visit(commaTerminal))
+                .append(' ')
+                .append(this.visit(expressionContext));
+        }
+        text.append(this.visit(rsqaureTerminal));
         return text.toString();
     }
 

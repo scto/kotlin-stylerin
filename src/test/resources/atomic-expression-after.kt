@@ -1,5 +1,10 @@
 import kotlin.random.Random
 
+annotation class Tags(val names: Array<String>)
+
+@Tags(["apple", "banana", "cherry"])
+fun example() {}
+
 class A {
 
     fun a(action: (String) -> Unit) {
