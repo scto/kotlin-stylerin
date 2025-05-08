@@ -3045,7 +3045,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (multiLineStrTextTerminal != null) {
             text.append(this.visit(multiLineStrTextTerminal));
         } else if (multiLineStrEscapedCharTerminal != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitMultiLineStringContent -> MultiLineStrEscapedChar");
+            text.append(this.visit(multiLineStrEscapedCharTerminal));
         } else if (multiLineStrRefTerminal != null) {
             text.append(this.visit(multiLineStrRefTerminal));
         }

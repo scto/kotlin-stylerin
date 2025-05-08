@@ -58,6 +58,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatMultiLineStringContent() {
+        this.compare("multi-line-string-content-before.kt", "multi-line-string-content-after.kt");
+    }
+
+    @Test
     void shouldFormatPropertyDeclaration() {
         this.compare("property-declaration-before.kt", "property-declaration-after.kt");
     }
