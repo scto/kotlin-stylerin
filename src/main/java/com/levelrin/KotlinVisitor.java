@@ -316,7 +316,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.TypeContext typeContext = context.type();
         final StringBuilder text = new StringBuilder();
         if (modifierListContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitTypeParameter -> modifierList");
+            text.append(this.visit(modifierListContext))
+                .append(' ');
         }
         if (simpleIdentifierContext != null) {
             text.append(this.visit(simpleIdentifierContext));
@@ -770,8 +771,16 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (parameterModifierContext != null) {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitModifier -> parameterModifier");
         } else if (typeParameterModifierContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitModifier -> typeParameterModifier");
+            text.append(this.visit(typeParameterModifierContext));
         }
+        return text.toString();
+    }
+
+    @Override
+    public String visitTypeParameterModifier(final KotlinParser.TypeParameterModifierContext context) {
+        final TerminalNode reifiedTerminal = context.REIFIED();
+        final StringBuilder text = new StringBuilder();
+        text.append(this.visit(reifiedTerminal));
         return text.toString();
     }
 

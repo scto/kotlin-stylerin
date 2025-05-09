@@ -58,6 +58,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatTypeParameter() {
+        this.compare("type-parameter-before.kt", "type-parameter-after.kt");
+    }
+
+    @Test
     void shouldFormatMultiLineStringContent() {
         this.compare("multi-line-string-content-before.kt", "multi-line-string-content-after.kt");
     }
