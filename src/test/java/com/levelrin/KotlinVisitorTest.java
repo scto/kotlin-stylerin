@@ -58,6 +58,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatSuspend() {
+        this.compare("suspend-before.kt", "suspend-after.kt");
+    }
+
+    @Test
     void shouldFormatTypeParameter() {
         this.compare("type-parameter-before.kt", "type-parameter-after.kt");
     }

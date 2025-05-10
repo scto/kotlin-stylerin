@@ -1415,7 +1415,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.TypeReferenceContext typeReferenceContext = context.typeReference();
         final StringBuilder text = new StringBuilder();
         if (typeModifierListContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitType -> typeModifierList");
+            text.append(this.visit(typeModifierListContext))
+                .append(' ');
         }
         if (functionTypeContext != null) {
             text.append(this.visit(functionTypeContext));
@@ -1425,6 +1426,33 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             text.append(this.visit(nullableTypeContext));
         } else if (typeReferenceContext != null) {
             text.append(this.visit(typeReferenceContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitTypeModifierList(final KotlinParser.TypeModifierListContext context) {
+        final List<KotlinParser.AnnotationsOrSuspendContext> annotationsOrSuspendContexts = context.annotationsOrSuspend();
+        final StringBuilder text = new StringBuilder();
+        for (int index = 0; index < annotationsOrSuspendContexts.size(); index++) {
+            final KotlinParser.AnnotationsOrSuspendContext annotationsOrSuspendContext = annotationsOrSuspendContexts.get(index);
+            text.append(this.visit(annotationsOrSuspendContext));
+            if (index < annotationsOrSuspendContexts.size() - 1) {
+                text.append(' ');
+            }
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitAnnotationsOrSuspend(final KotlinParser.AnnotationsOrSuspendContext context) {
+        final KotlinParser.AnnotationsContext annotationsContext = context.annotations();
+        final TerminalNode suspendTerminal = context.SUSPEND();
+        final StringBuilder text = new StringBuilder();
+        if (annotationsContext != null) {
+            text.append(this.visit(annotationsContext));
+        } else if (suspendTerminal != null) {
+            text.append(this.visit(suspendTerminal));
         }
         return text.toString();
     }

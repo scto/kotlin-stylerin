@@ -277,7 +277,13 @@ type
     ;
 
 typeModifierList
-    : (annotations | SUSPEND NL*)+
+    // Original: (annotations | SUSPEND NL*)+
+    : annotationsOrSuspend+
+    ;
+
+// This is a rule that we created for easier parsing.
+annotationsOrSuspend
+    : annotations | SUSPEND NL*
     ;
 
 parenthesizedType
