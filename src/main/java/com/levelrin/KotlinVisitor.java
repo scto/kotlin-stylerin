@@ -1035,7 +1035,6 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.FirstTypeOfFuncDeclarationContext firstTypeOfFuncDeclarationContext = context.firstTypeOfFuncDeclaration();
         final KotlinParser.TypeParametersContext typeParametersContext = context.typeParameters();
         final KotlinParser.ReceiverTypeContext receiverTypeContext = context.receiverType();
-        // todo: use `dotTerminal` with tests.
         final TerminalNode dotTerminal = context.DOT();
         final KotlinParser.IdentifierContext identifierContext = context.identifier();
         final KotlinParser.FunctionValueParametersContext functionValueParametersContext = context.functionValueParameters();
@@ -1065,7 +1064,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
                 .append(' ');
         }
         if (receiverTypeContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionDeclaration -> receiverType");
+            text.append(this.visit(receiverTypeContext))
+                .append(this.visit(dotTerminal));
         }
         if (identifierContext != null) {
             text.append(this.visit(identifierContext));
@@ -1084,6 +1084,27 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (functionBodyContext != null) {
             text.append(' ');
             text.append(this.visit(functionBodyContext));
+        }
+        return text.toString();
+    }
+
+    @Override
+    public String visitReceiverType(final KotlinParser.ReceiverTypeContext context) {
+        final KotlinParser.TypeModifierListContext modifierListContext = context.typeModifierList();
+        final KotlinParser.ParenthesizedTypeContext parenthesizedTypeContext = context.parenthesizedType();
+        final KotlinParser.NullableTypeContext nullableTypeContext = context.nullableType();
+        final KotlinParser.TypeReferenceContext typeReferenceContext = context.typeReference();
+        final StringBuilder text = new StringBuilder();
+        if (modifierListContext != null) {
+            text.append(this.visit(modifierListContext))
+                .append(' ');
+        }
+        if (parenthesizedTypeContext != null) {
+            text.append(this.visit(parenthesizedTypeContext));
+        } else if (nullableTypeContext != null) {
+            text.append(this.visit(nullableTypeContext));
+        } else if (typeReferenceContext != null) {
+            text.append(this.visit(typeReferenceContext));
         }
         return text.toString();
     }
