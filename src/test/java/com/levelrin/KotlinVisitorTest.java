@@ -58,6 +58,11 @@ final class KotlinVisitorTest {
     }
 
     @Test
+    void shouldFormatModifier() {
+        this.compare("modifier-before.kt", "modifier-after.kt");
+    }
+
+    @Test
     void shouldFormatSuspend() {
         this.compare("suspend-before.kt", "suspend-after.kt");
     }

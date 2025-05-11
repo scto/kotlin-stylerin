@@ -761,7 +761,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         } else if (visibilityModifierContext != null) {
             text.append(this.visit(visibilityModifierContext));
         } else if (varianceAnnotationContext != null) {
-            throw new UnsupportedOperationException("The following parsing path is not supported yet: visitModifier -> varianceAnnotation");
+            text.append(this.visit(varianceAnnotationContext));
         } else if (functionModifierContext != null) {
             text.append(this.visit(functionModifierContext));
         } else if (propertyModifierContext != null) {
