@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+        "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+        "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+    <!-- Suppress rules for test files. -->
+    <suppress files=".*[\\/]src[\\/](test)[\\/]" checks="MethodName"/>
+    <suppress files=".*[\\/]src[\\/](test)[\\/]" checks="MissingCtor"/>
+
+    <!-- Suppressions for Main -->
+    <suppress files="Main\.java" checks="MissingCtor"/>
+    <suppress files="Main\.java" checks="HideUtilityClassConstructor"/>
+    <suppress files="Main\.java" checks="UncommentedMain"/>
+
+    <!-- Suppressions for Antlr projects -->
+    <suppress files="KotlinVisitor\.java" checks="FileLength"/>
+    <suppress files="KotlinVisitor\.java" checks="JavaNCSS"/>
+    <suppress files="KotlinVisitor\.java" checks="ClassFanOutComplexity"/>
+    <suppress files="KotlinVisitor\.java" checks="JavaNCSS"/>
+    <suppress files="KotlinVisitor\.java" checks="MethodCount"/>
+    <suppress files="KotlinVisitor\.java" checks="CyclomaticComplexity"/>
+    <suppress files="KotlinVisitor\.java" checks="NPathComplexity"/>
+    <suppress files="KotlinVisitor\.java" checks="ExecutableStatementCount"/>
+    <suppress files="KotlinVisitor\.java" checks="MultipleStringLiterals"/>
+    <suppress files="KotlinVisitor\.java" checks="MethodLength"/>
+    <suppress files="KotlinVisitor\.java" checks="NestedIfDepth"/>
+    <suppress files="KotlinVisitor\.java" checks="BooleanExpressionComplexity"/>
+    <suppress files="KotlinVisitor\.java" checks="UnusedLocalVariable"/>
+</suppressions>

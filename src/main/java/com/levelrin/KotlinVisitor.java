@@ -13,10 +13,23 @@ import org.antlr.v4.runtime.tree.TerminalNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This is the class that has the formatting logic.
+ * Welcome to the project :)
+ */
+// Excluding the following PMD rules via `ruleSet.xml` didn't work, for some reason.
+// Except PMD.UnusedAssignment was added due to a false-positive.
+@SuppressWarnings({"PMD.TooManyMethods", "PMD.LinguisticNaming", "PMD.UnusedAssignment"})
 public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
 
+    /**
+     * For logging.
+     */
     private static final Logger LOGGER = LoggerFactory.getLogger(KotlinVisitor.class);
 
+    /**
+     * Number of spaces for an indentation.
+     */
     private static final String INDENT_UNIT = "    ";
 
     /**
@@ -31,6 +44,9 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
      */
     private Map<String, Integer> ruleVisitCounts = new HashMap<>();
 
+    /**
+     * As is.
+     */
     private int currentIndentLevel;
 
     /**
@@ -897,7 +913,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         if (!classMemberDeclarationContexts.isEmpty()) {
             this.currentIndentLevel++;
             this.appendNewLinesAndIndent(text, 2);
-            for (int index = 0, size = classMemberDeclarationContexts.size(); index < size; index++) {
+            for (int index = 0; index < classMemberDeclarationContexts.size(); index++) {
                 final KotlinParser.ClassMemberDeclarationContext classMemberDeclarationContext = classMemberDeclarationContexts.get(index);
                 text.append(this.visit(classMemberDeclarationContext));
                 if (index < classMemberDeclarationContexts.size() - 1) {
@@ -1082,8 +1098,8 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             throw new UnsupportedOperationException("The following parsing path is not supported yet: visitFunctionDeclaration -> typeConstraints");
         }
         if (functionBodyContext != null) {
-            text.append(' ');
-            text.append(this.visit(functionBodyContext));
+            text.append(' ')
+                .append(this.visit(functionBodyContext));
         }
         return text.toString();
     }
@@ -1239,11 +1255,11 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
             }
         }
         if (valTerminal != null) {
-            text.append(this.visit(valTerminal));
-            text.append(' ');
+            text.append(this.visit(valTerminal))
+                .append(' ');
         } else if (varTerminal != null) {
-            text.append(this.visit(varTerminal));
-            text.append(' ');
+            text.append(this.visit(varTerminal))
+                .append(' ');
         }
         if (typeParametersContext != null) {
             // (NL* typeParameters)?
@@ -1673,7 +1689,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
                     .append(' ');
             }
             text.append(this.visit(typeContext));
-        } else if(multTerminal != null) {
+        } else if (multTerminal != null) {
             text.append(this.visit(multTerminal));
         }
         return text.toString();
@@ -2099,7 +2115,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         final KotlinParser.LabelDefinitionContext labelDefinitionContext = context.labelDefinition();
         final StringBuilder text = new StringBuilder();
         if (incrTerminal != null) {
-           text.append(this.visit(incrTerminal));
+            text.append(this.visit(incrTerminal));
         } else if (decrTerminal != null) {
             text.append(this.visit(decrTerminal));
         } else if (addTerminal != null) {
@@ -2176,6 +2192,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         return text.toString();
     }
 
+    @SuppressWarnings("PMD.ConfusingTernary")
     @Override
     public String visitPostfixUnaryOperation(final KotlinParser.PostfixUnaryOperationContext context) {
         final TerminalNode incrTerminal = context.INCR();
@@ -2441,6 +2458,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
      * It's for {@link KotlinVisitor#visitValueArguments(KotlinParser.ValueArgumentsContext)}.
      * There is a case where parameters are nested like this: `RussianDoll("Rin",RussianDoll("Revomin",RussianDoll("Ian")))`.
      * In such as a case, we want to indent them.
+     *
      * @param context As is.
      * @return Formatted text with the assumption that the parameters are nested.
      */
@@ -2480,8 +2498,9 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
 
     /**
      * Similar to {@link KotlinVisitor#visitValueArgumentsWithIndentation(KotlinParser.ValueArgumentsContext)}.
-     * The only different is that we assume the parameters are NOT nested.
+     * The only difference is that we assume the parameters are NOT nested.
      * In such a case, we don't want to indent them.
+     *
      * @param context As is.
      * @return Formatted text with the assumption that the parameters are NOT nested.
      */
@@ -3405,6 +3424,7 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     }
 
     @Override
+    @SuppressWarnings("MagicNumber")
     public String visitTerminal(final TerminalNode node) {
         int tokenIndex = node.getSymbol().getTokenIndex();
         // Since we skip NL and SEMICOLON tokens, we need to look back
@@ -3441,6 +3461,12 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
         );
     }
 
+    /**
+     * We use this to add new lines with appropriate indentations.
+     *
+     * @param text We will append the new lines and indentations into this.
+     * @param newLines Number of new lines before appending indentations.
+     */
     private void appendNewLinesAndIndent(final StringBuilder text, final int newLines) {
         text.append("\n".repeat(newLines))
             .append(INDENT_UNIT.repeat(this.currentIndentLevel));

@@ -16,6 +16,8 @@ import org.hamcrest.MatcherAssert;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
+// Excluding the following PMD rules via `ruleSet.xml` didn't work, for some reason.
+@SuppressWarnings({"PMD.TooManyMethods", "PMD.LinguisticNaming"})
 final class KotlinVisitorTest {
 
     /**

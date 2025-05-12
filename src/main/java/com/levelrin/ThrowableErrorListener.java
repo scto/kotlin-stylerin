@@ -8,9 +8,11 @@ import org.antlr.v4.runtime.Recognizer;
 /**
  * It throws {@link ParseException} when there is a syntax error.
  */
+@SuppressWarnings("MissingCtor")
 public final class ThrowableErrorListener extends BaseErrorListener {
 
     @Override
+    @SuppressWarnings("LineLength")
     public void syntaxError(final Recognizer<?, ?> recognizer, final Object offendingSymbol, final int line, final int charPositionInLine, final String message, final RecognitionException exception) {
         final CommonToken offendingToken = (CommonToken) offendingSymbol;
         throw new ParseException(
