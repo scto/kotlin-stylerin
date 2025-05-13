@@ -1,7 +1,5 @@
 package com.levelrin;
 
-import java.io.Serial;
-
 /**
  * The input text might have syntax errors.
  * Even worse, the parsing may fail due to a bug in the `KotlinParser.g4`.
@@ -9,8 +7,10 @@ import java.io.Serial;
  */
 public final class ParseException extends RuntimeException {
 
-    @Serial
-    private static final long serialVersionUID = 1L;
+    /**
+     * Please do not use the @Serial annotation because it is not supported in JDK 11.
+     */
+    private static final long serialVersionUID = 2475260797198183501L;
 
     /**
      * Constructor.
