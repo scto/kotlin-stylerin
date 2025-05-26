@@ -1,5 +1,6 @@
 package com.levelrin;
 
+import com.levelrin.antlr.generated.KotlinLexer;
 import com.levelrin.antlr.generated.KotlinParser;
 import com.levelrin.antlr.generated.KotlinParserBaseVisitor;
 import java.util.HashMap;
@@ -3424,16 +3425,13 @@ public final class KotlinVisitor extends KotlinParserBaseVisitor<String> {
     }
 
     @Override
-    @SuppressWarnings("MagicNumber")
     public String visitTerminal(final TerminalNode node) {
         int tokenIndex = node.getSymbol().getTokenIndex();
         // Since we skip NL and SEMICOLON tokens, we need to look back
         // and get the comment from the initially skipped token index.
         for (int index = tokenIndex - 1; index >= 0; index--) {
             final Token token = this.tokens.get(index);
-            // The token type 5 is NL and 26 is SEMICOLON.
-            // Note that we may have to update the type number if we modify the KotlinLexer.
-            if (token.getType() != 5 && token.getType() != 26) {
+            if (token.getType() != KotlinLexer.NL && token.getType() != KotlinLexer.SEMICOLON) {
                 tokenIndex = index + 1;
                 break;
             }
